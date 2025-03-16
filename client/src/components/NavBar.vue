@@ -5,7 +5,7 @@
     <div class="hidden md:flex w-full justify-between">
       <div class="flex space-x-4">
         <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/stuff">Stuffs</RouterLink>
+        <RouterLink to="/stuff">Stuff</RouterLink>
         <RouterLink to="/encyclopedia">Encyclopedia</RouterLink>
       </div>
       <div class="right-0">

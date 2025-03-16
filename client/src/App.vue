@@ -5,7 +5,14 @@ import NavBar from './components/NavBar.vue'
 
 <template>
   <NavBar />
-  <!-- <RouterView /> -->
+  <main class="content">
+    <RouterView />
+  </main>
 </template>
 
-<style scoped></style>
+<style scoped>
+.content {
+  padding-top: 48px;
+  width: 100vw;
+}
+</style>
