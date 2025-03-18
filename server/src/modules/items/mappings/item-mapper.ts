@@ -5,6 +5,7 @@ export class ItemMapper {
   static toDto(document: Item, locale: string): RetrieveItemDto {
     return {
       id: document.definition.item.id,
+      level: document.definition.item.level,
       baseParameters: {
         itemTypeId: document.definition.item.baseParameters?.itemTypeId,
         itemSetId: document.definition.item.baseParameters.itemSetId,

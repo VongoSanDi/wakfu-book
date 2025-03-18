@@ -12,6 +12,9 @@ export class RetrieveItemDto {
   @ApiProperty()
   id: number;
 
+  @ApiProperty()
+  level: number;
+
   @ApiProperty({ type: BaseParametersDto })
   baseParameters: BaseParametersDto;
 

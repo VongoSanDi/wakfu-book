@@ -14,7 +14,7 @@ import { validatePageOptionsDto } from 'src/common/validations/page-options.vali
 export class ItemsService {
   constructor(
     @InjectModel(Item.name) private readonly itemModel: Model<ItemDocument>,
-  ) {}
+  ) { }
 
   async find(
     dto: RetrieveItemFilter,
@@ -47,6 +47,7 @@ export class ItemsService {
     const projection = {
       _id: 0,
       'definition.item.id': 1,
+      'definition.item.level': 1,
       'definition.item.baseParameters.itemTypeId': 1,
       'definition.item.baseParameters.itemSetId': 1,
       [`title.${locale}`]: 1,
