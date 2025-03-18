@@ -1,0 +1,13 @@
+GET http://localhost:3000/items?itemTypeId=114&locale=fr&page=2&take=10&order=ASC&orderBy=definition.item.id HTTP/2
+Content-Type: application/json
+###
+GET http://localhost:3000/items?itemTypeId=114&locale=en&page=1&take=10&title=hamm&order=ASC&orderBy=definition.item.id
+Content-Type: application/json
+###
+GET http://localhost:3000/items?&locale=en&page=1&take=10&title=hamm&order=ASC&orderBy=definition.item.id
+Content-Type: application/json
+###
+GET https://wakfu.cdn.ankama.com/gamedata/config.json
+###
+GET https://wakfu.cdn.ankama.com/gamedata/1.86.4.35/resources.json
+Content-Type: application/json
