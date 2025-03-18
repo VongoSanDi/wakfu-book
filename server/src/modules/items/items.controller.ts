@@ -1,18 +1,11 @@
 import {
   Controller,
   Get,
-  Post,
-  Body,
-  Patch,
   Param,
-  Delete,
   Query,
-  NotImplementedException,
   ParseIntPipe,
 } from '@nestjs/common';
 import { ItemsService } from './items.service';
-import { CreateItemDto } from './dto/create-item.dto';
-import { UpdateItemDto } from './dto/update-item.dto';
 import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { ApiPaginationQuery } from 'src/common/decorators/pagination.decorator';
 import { RetrieveItemDto } from './dto/retrieve-item.dto';
@@ -21,12 +14,7 @@ import { PageOptionsDto } from 'src/common/dto/page-options.dto';
 
 @Controller('items')
 export class ItemsController {
-  constructor(private readonly itemsService: ItemsService) {}
-
-  @Post()
-  create(@Body() createItemDto: CreateItemDto) {
-    throw new NotImplementedException('This actions is not permitted');
-  }
+  constructor(private readonly itemsService: ItemsService) { }
 
   @Get()
   @ApiOperation({ summary: 'Retrieve all items' })
@@ -69,15 +57,5 @@ export class ItemsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.itemsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateItemDto: UpdateItemDto) {
-    throw new NotImplementedException('This actions is not permitted');
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    throw new NotImplementedException('This actions is not permitted');
   }
 }
