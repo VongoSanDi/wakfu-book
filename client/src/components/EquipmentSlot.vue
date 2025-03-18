@@ -4,3 +4,8 @@
     EquipementSlot
   </div>
 </template>
+<script setup lang="ts">
+defineProps<{
+  itemTypeId: number
+}>()
+</script>

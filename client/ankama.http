@@ -1,3 +1,10 @@
+### Game version
+GET https://wakfu.cdn.ankama.com/gamedata/config.json
+###
 GET https://wakfu.cdn.ankama.com/gamedata/1.86.4.35/resourceTypes.json
 #####################################################################
 GET https://wakfu.cdn.ankama.com/gamedata/1.86.4.35/resources.json
+#####################################################################
+GET https://wakfu.cdn.ankama.com/gamedata/1.86.4.35/equipmentItemTypes.json
+### contient les données relatives aux items, leurs effets, nom, description, etc.. À croiser avec les données actions, equipmentItemTypes et itemProperties.
+GET https://wakfu.cdn.ankama.com/gamedata/1.86.4.35/items.json
