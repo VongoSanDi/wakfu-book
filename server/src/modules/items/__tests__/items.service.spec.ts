@@ -3,11 +3,11 @@ import { ItemsService } from '../items.service';
 import { Model } from 'mongoose';
 import { getModelToken } from '@nestjs/mongoose';
 import { RetrieveItemFilter } from '../filters/retrieve-item.filter';
-import { PageOptionsDto } from 'src/common/dto/page-options.dto';
+import { PageOptionsDto } from '../../../common/dto/page-options.dto';
 import { BadRequestException } from '@nestjs/common';
 import { Item } from '../schemas/item.schema';
 import { testItems } from './test-data';
-import { closeTestDB, initTestDB } from 'src/common/__tests__/db.setup';
+import { closeTestDB, initTestDB } from '../../../common/__tests__/db.setup';
 
 describe('ItemsService', () => {
   let service: ItemsService;
@@ -53,19 +53,20 @@ describe('ItemsService', () => {
       orderBy: 'definition.item.id',
     };
 
-    const { results, itemCount, totalCount } = await service.find(
+    const { data, itemCount, totalCount } = await service.find(
       dto,
       pageOptionsDto,
     );
 
-    expect(results).toBeDefined();
+    expect(data).toBeDefined();
     expect(itemCount).toBeDefined();
     expect(itemCount).toEqual(2);
     expect(totalCount).toEqual(2);
-    expect(results[0]).toHaveProperty('id');
-    expect(results[0]).toHaveProperty('title');
-    expect(results[0]).toHaveProperty('level');
-    expect(results[0].title).toBe('Gobball Amulet');
+    expect(data[0]).toHaveProperty('id');
+    expect(data[0]).toHaveProperty('title');
+    expect(data[0]).toHaveProperty('level');
+    expect(data[0].baseParameters).toHaveProperty('itemTypeId');
+    expect(data[0].title).toBe('Gobball Amulet');
   });
 
   it('should return results when title is an empty string', async () => {
@@ -82,18 +83,18 @@ describe('ItemsService', () => {
       orderBy: 'definition.item.id',
     };
 
-    const { results, itemCount, totalCount } = await service.find(
+    const { data, itemCount, totalCount } = await service.find(
       dto,
       pageOptionsDto,
     );
 
-    expect(results).toBeDefined();
+    expect(data).toBeDefined();
     expect(itemCount).toBeDefined();
     expect(itemCount).toEqual(2);
     expect(totalCount).toEqual(2);
-    expect(results[0]).toHaveProperty('id');
-    expect(results[0]).toHaveProperty('title');
-    expect(results[1].title).toBe('Tofu Amulet');
+    expect(data[0]).toHaveProperty('id');
+    expect(data[0]).toHaveProperty('title');
+    expect(data[1].title).toBe('Tofu Amulet');
   });
 
   it('should return items when all the filters are provided', async () => {
@@ -109,18 +110,18 @@ describe('ItemsService', () => {
       order: 'ASC',
       orderBy: 'definition.item.id',
     };
-    const { results, itemCount, totalCount } = await service.find(
+    const { data, itemCount, totalCount } = await service.find(
       dto,
       pageOptionsDto,
     );
 
-    expect(results).toBeDefined();
+    expect(data).toBeDefined();
     expect(itemCount).toBeDefined();
     expect(itemCount).toEqual(2);
     expect(totalCount).toEqual(2);
-    expect(results[0]).toHaveProperty('id');
-    expect(results[0]).toHaveProperty('title');
-    expect(results[1].title).toBe('Tofu Amulet');
+    expect(data[0]).toHaveProperty('id');
+    expect(data[0]).toHaveProperty('title');
+    expect(data[1].title).toBe('Tofu Amulet');
   });
 
   it('should return items even if title is UPPERCASE', async () => {
@@ -138,18 +139,18 @@ describe('ItemsService', () => {
       orderBy: 'definition.item.id',
     };
 
-    const { results, itemCount, totalCount } = await service.find(
+    const { data, itemCount, totalCount } = await service.find(
       dto,
       pageOptionsDto,
     );
 
-    expect(results).toBeDefined();
+    expect(data).toBeDefined();
     expect(itemCount).toBeDefined();
     expect(itemCount).toEqual(2);
     expect(totalCount).toEqual(2);
-    expect(results[0]).toHaveProperty('id');
-    expect(results[0]).toHaveProperty('title');
-    expect(results[1].title).toBe('Tofu Amulet');
+    expect(data[0]).toHaveProperty('id');
+    expect(data[0]).toHaveProperty('title');
+    expect(data[1].title).toBe('Tofu Amulet');
   });
 
   it('should return an error when take is superior to the accepted limit of 100', async () => {
@@ -273,18 +274,18 @@ describe('ItemsService', () => {
       orderBy: 'definition.item.id',
     };
 
-    const { results, itemCount, totalCount } = await service.find(
+    const { data, itemCount, totalCount } = await service.find(
       dto,
       pageOptionsDto,
     );
 
-    expect(results).toBeDefined();
+    expect(data).toBeDefined();
     expect(itemCount).toBeDefined();
     expect(itemCount).toEqual(1);
     expect(totalCount).toEqual(2);
-    expect(results[0]).toHaveProperty('id');
-    expect(results[0]).toHaveProperty('title');
-    expect(results[0].title).toBe('Gobball Amulet');
+    expect(data[0]).toHaveProperty('id');
+    expect(data[0]).toHaveProperty('title');
+    expect(data[0].title).toBe('Gobball Amulet');
   });
 
   it('should return other item when pagination change', async () => {
@@ -301,13 +302,13 @@ describe('ItemsService', () => {
       orderBy: 'definition.item.id',
     };
 
-    const { results, itemCount, totalCount } = await service.find(
+    const { data, itemCount, totalCount } = await service.find(
       dto,
       pageOptionsDto,
     );
 
-    expect(results).toHaveLength(1);
-    expect(results[0].title).toBe('Gobball Amulet');
+    expect(data).toHaveLength(1);
+    expect(data[0].title).toBe('Gobball Amulet');
 
     // Second page
     const pageOptionsDtoBis: PageOptionsDto = {
@@ -318,13 +319,13 @@ describe('ItemsService', () => {
       orderBy: 'definition.item.id',
     };
 
-    const { results: resultsBis } = await service.find(dto, pageOptionsDtoBis);
+    const { data: dataBis } = await service.find(dto, pageOptionsDtoBis);
 
-    expect(resultsBis).toHaveLength(1);
-    expect(resultsBis[0].title).toBe('Tofu Amulet');
+    expect(dataBis).toHaveLength(1);
+    expect(dataBis[0].title).toBe('Tofu Amulet');
 
     // Final Check
-    expect(results[0].title).not.toBe(resultsBis[0].title);
+    expect(data[0].title).not.toBe(dataBis[0].title);
     expect(itemCount).toBe(1);
     expect(totalCount).toBe(2);
   });
@@ -342,12 +343,12 @@ describe('ItemsService', () => {
       orderBy: 'definition.item.id',
     };
 
-    const { results, itemCount, totalCount } = await service.find(
+    const { data, itemCount, totalCount } = await service.find(
       dto,
       pageOptionsDto,
     );
 
-    expect(results).toBeDefined();
+    expect(data).toBeDefined();
     expect(itemCount).toBeDefined();
     expect(itemCount).toEqual(0);
     expect(totalCount).toEqual(0);
@@ -366,21 +367,21 @@ describe('ItemsService', () => {
       orderBy: 'definition.item.id',
     };
 
-    const { results, itemCount, totalCount } = await service.find(
+    const { data, itemCount, totalCount } = await service.find(
       dto,
       pageOptionsDto,
     );
 
-    expect(results).toBeDefined();
+    expect(data).toBeDefined();
     expect(itemCount).toBeDefined();
     expect(itemCount).toEqual(2);
     expect(totalCount).toEqual(2);
-    expect(results[0]).toHaveProperty('id');
-    expect(results[0]).toHaveProperty('title');
-    expect(results[0]).toHaveProperty('description');
-    expect(results[0]).toHaveProperty('baseParameters.itemTypeId');
-    expect(results[0]).toHaveProperty('baseParameters.itemSetId');
-    expect(results[0].title).toBe('Gobball Amulet');
+    expect(data[0]).toHaveProperty('id');
+    expect(data[0]).toHaveProperty('title');
+    expect(data[0]).toHaveProperty('description');
+    expect(data[0]).toHaveProperty('baseParameters.itemTypeId');
+    expect(data[0]).toHaveProperty('baseParameters.itemSetId');
+    expect(data[0].title).toBe('Gobball Amulet');
   });
 
   it('should return plain JavaScript objects (not mongoose Documents) since we use lean() and not exec()', async () => {
@@ -396,17 +397,17 @@ describe('ItemsService', () => {
       orderBy: 'definition.item.id',
     };
 
-    const { results, itemCount, totalCount } = await service.find(
+    const { data, itemCount, totalCount } = await service.find(
       dto,
       pageOptionsDto,
     );
 
-    expect(results).toBeInstanceOf(Array);
+    expect(data).toBeInstanceOf(Array);
     expect(itemCount).toEqual(2);
     expect(totalCount).toEqual(2);
 
     // Check if each object isn't an intance of mongoose.Document
-    results.forEach((item) => {
+    data.forEach((item) => {
       expect(item).not.toHaveProperty('save'); // save is a method of mongoose.Document
       expect(item).not.toBeInstanceOf(model); // Check it's not a model mongoose
     });
@@ -422,8 +423,8 @@ describe('ItemsService', () => {
       orderBy: 'definition.item.id',
     };
 
-    const { results } = await service.find(dto, pageOptionsDto);
-    expect(results[0].id).toBeLessThan(results[1].id);
+    const { data } = await service.find(dto, pageOptionsDto);
+    expect(data[0].id).toBeLessThan(data[1].id);
   });
 
   it('should return items sorted in descending order', async () => {
@@ -436,8 +437,8 @@ describe('ItemsService', () => {
       orderBy: 'definition.item.id',
     };
 
-    const { results } = await service.find(dto, pageOptionsDto);
-    expect(results[0].id).toBeGreaterThan(results[1].id);
+    const { data } = await service.find(dto, pageOptionsDto);
+    expect(data[0].id).toBeGreaterThan(data[1].id);
   });
 
   it('should return maximum results <= take because itemTypeId is not provided', async () => {
@@ -449,19 +450,19 @@ describe('ItemsService', () => {
       order: 'ASC',
       orderBy: 'definition.item.id',
     };
-    const { results, itemCount, totalCount } = await service.find(
+    const { data, itemCount, totalCount } = await service.find(
       dto,
       pageOptionsDto,
     );
 
-    expect(results).toBeDefined()
-    expect(itemCount).toBeDefined()
-    expect(totalCount).toBeDefined()
-    expect(itemCount).toEqual(4)
-    expect(totalCount).toEqual(4)
-    expect(results[0]).toHaveProperty('id');
-    expect(results[0]).toHaveProperty('title');
-    expect(results[1].id).toEqual(2022);
-    expect(results[1]).toHaveProperty('level');
+    expect(data).toBeDefined();
+    expect(itemCount).toBeDefined();
+    expect(totalCount).toBeDefined();
+    expect(itemCount).toEqual(4);
+    expect(totalCount).toEqual(4);
+    expect(data[0]).toHaveProperty('id');
+    expect(data[0]).toHaveProperty('title');
+    expect(data[1].id).toEqual(2022);
+    expect(data[1]).toHaveProperty('level');
   });
 });

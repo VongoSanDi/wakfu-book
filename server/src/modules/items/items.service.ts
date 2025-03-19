@@ -4,11 +4,11 @@ import { Model, SortOrder } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { RetrieveItemDto } from './dto/retrieve-item.dto';
 import { ItemMapper } from './mappings/item-mapper';
-import { PageOptionsDto } from 'src/common/dto/page-options.dto';
+import { PageOptionsDto } from '../../common/dto/page-options.dto';
 import { RetrieveItemFilter } from './filters/retrieve-item.filter';
-import { ValidateSchema } from 'src/common/validations/validators';
+import { ValidateSchema } from '../../common/validations/validators';
 import { RetrieveItemsFilterValidation } from './validations/items.validation';
-import { validatePageOptionsDto } from 'src/common/validations/page-options.validation';
+import { validatePageOptionsDto } from '../../common/validations/page-options.validation';
 
 @Injectable()
 export class ItemsService {
@@ -20,7 +20,7 @@ export class ItemsService {
     dto: RetrieveItemFilter,
     pageOptionsDto: PageOptionsDto,
   ): Promise<{
-    results: RetrieveItemDto[];
+    data: RetrieveItemDto[];
     itemCount: number;
     totalCount: number;
   }> {
@@ -37,10 +37,10 @@ export class ItemsService {
     // In MongoDB, order format is ASC = 1, DESC = -1
     const sortOrder: SortOrder = order.toUpperCase() === 'DESC' ? -1 : 1;
     const sortQuery = orderBy ? { [orderBy]: sortOrder } : {};
-    let filter = {}
+    let filter = {};
     if (itemTypeId) {
       filter['definition.item.baseParameters.itemTypeId'] = itemTypeId;
-    };
+    }
     if (title) {
       filter[`title.${locale}`] = { $regex: title, $options: 'i' }; // Recherche insensible à la casse
     }
@@ -68,7 +68,7 @@ export class ItemsService {
     ]);
     const resultsMapped = results.map((item) => ItemMapper.toDto(item, locale));
     return {
-      results: resultsMapped,
+      data: resultsMapped,
       itemCount: resultsMapped.length,
       totalCount: totalCount,
     };

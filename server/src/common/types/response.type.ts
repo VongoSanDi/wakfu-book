@@ -9,7 +9,7 @@ export interface Response<T> {
 
 // Used for sending back multiples objects
 export interface PaginatedResponse<T> {
-  results: T[];
+  data: T[];
   itemCount: number;
   totalCount: number;
   pageOptionsDto: PageOptionsDto;

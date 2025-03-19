@@ -1,10 +1,10 @@
 import { Controller, Get, Param, Query, ParseIntPipe } from '@nestjs/common';
 import { ItemsService } from './items.service';
 import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
-import { ApiPaginationQuery } from 'src/common/decorators/pagination.decorator';
+import { ApiPaginationQuery } from '../../common/decorators/pagination.decorator';
 import { RetrieveItemDto } from './dto/retrieve-item.dto';
-import { PaginatedResponse } from 'src/common/types/response.type';
-import { PageOptionsDto } from 'src/common/dto/page-options.dto';
+import { PaginatedResponse } from '../../common/types/response.type';
+import { PageOptionsDto } from '../../common/dto/page-options.dto';
 
 @Controller('items')
 export class ItemsController {
@@ -31,8 +31,8 @@ export class ItemsController {
     type: RetrieveItemDto,
   })
   async find(
-    @Query('locale') locale: string,
     @Query() pageOptionsDto: PageOptionsDto,
+    @Query('locale') locale: string,
     @Query('itemTypeId', ParseIntPipe) itemTypeId?: number,
     @Query('title') title?: string,
   ): Promise<PaginatedResponse<RetrieveItemDto>> {
@@ -41,11 +41,11 @@ export class ItemsController {
       title,
       locale,
     };
-    const { results, itemCount, totalCount } = await this.itemsService.find(
+    const { data, itemCount, totalCount } = await this.itemsService.find(
       dto,
       pageOptionsDto,
     );
-    return { results, itemCount, totalCount, pageOptionsDto };
+    return { data, itemCount, totalCount, pageOptionsDto };
   }
 
   @Get(':id')

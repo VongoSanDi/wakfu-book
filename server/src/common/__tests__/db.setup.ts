@@ -1,6 +1,6 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { connect, Connection, Model } from 'mongoose';
-import { Item, ItemSchema } from 'src/modules/items/schemas/item.schema';
+import { Item, ItemSchema } from '../../modules/items/schemas/item.schema';
 
 let mongod: MongoMemoryServer;
 let connection: Connection;

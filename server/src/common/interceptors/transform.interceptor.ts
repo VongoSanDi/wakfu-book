@@ -11,8 +11,7 @@ import { Response, PaginatedResponse } from '../types/response.type';
 
 @Injectable()
 export class TransformInterceptor<T>
-  implements NestInterceptor<T | PaginatedResponse<T>, Response<T | T[]>>
-{
+  implements NestInterceptor<T | PaginatedResponse<T>, Response<T | T[]>> {
   intercept(
     context: ExecutionContext,
     next: CallHandler,
@@ -21,9 +20,9 @@ export class TransformInterceptor<T>
       map((data) => {
         const timestamp = new Date().toISOString();
 
-        if (this.isPaginatedResult(data)) {
+        if (this.isPaginatedResponse(data)) {
           return {
-            data: data.results,
+            data: data.data,
             meta: new PageMetaDto(
               data.pageOptionsDto,
               data.itemCount,
@@ -41,11 +40,11 @@ export class TransformInterceptor<T>
     );
   }
 
-  private isPaginatedResult(data: any): data is PaginatedResponse<T> {
+  private isPaginatedResponse(data: any): data is PaginatedResponse<T> {
     return (
       data !== null &&
       typeof data === 'object' &&
-      'results' in data &&
+      'data' in data &&
       'pageOptionsDto' in data &&
       'itemCount' in data &&
       'totalCount' in data
