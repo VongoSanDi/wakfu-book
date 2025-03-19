@@ -61,7 +61,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         statusCode: exception.getStatus(),
         message:
           typeof exceptionResponse === 'object' &&
-          'message' in exceptionResponse
+            'message' in exceptionResponse
             ? (exceptionResponse.message as string)
             : exception.message,
         error:
@@ -82,13 +82,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         message: exception.message,
         ...(stackLocation && { stackLocation }),
       };
-    }
-
-    if (responseBody.parameters?.body?.password) {
-      responseBody.parameters.body.password = '***';
-    }
-    if (responseBody.parameters?.body?.password_hash) {
-      responseBody.parameters.body.password_hash = '***';
     }
 
     this.logger.error({
