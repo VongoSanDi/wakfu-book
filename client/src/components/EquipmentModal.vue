@@ -46,7 +46,7 @@ import { defineProps, defineEmits, ref, watchEffect, watch } from 'vue'
 import type { Item } from '@/types/item.type'
 import { itemService } from '@/services/itemsService';
 
-const props = defineProps<{ isOpen: boolean, itemTypeId: number }>()
+const props = defineProps<{ isOpen: boolean, itemTypeId: number | null }>()
 const emit = defineEmits(['close'])
 
 const items = ref<Item[]>([])
@@ -61,7 +61,7 @@ const fetchItems = async () => {
   loading.value = true;
   try {
     const results = await itemService.find({
-      itemTypeId: props.itemTypeId,
+      itemTypeId: props.itemTypeId ?? undefined,
       locale: "fr",
       page: 1,
       take: 100,

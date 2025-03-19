@@ -10,10 +10,10 @@ export class ItemService extends ApiService<Item> {
   async find(dto: RetrieveItemDto): Promise<Item[]> {
 
     const queryParams = new URLSearchParams({
-      itemTypeId: dto.itemTypeId.toString(),
       locale: dto.locale,
       order: dto.order ?? "ASC",
       orderBy: dto.orderBy ?? "definition.item.id",
+      ...(dto.itemTypeId && { itemTypeId: dto.itemTypeId.toString() }),
       ...(dto.title && { title: dto.title }),
       ...(dto.page && { page: dto.page.toString() }),
       ...(dto.take && { take: dto.take.toString() }),
