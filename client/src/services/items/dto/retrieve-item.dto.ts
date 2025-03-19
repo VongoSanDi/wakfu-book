@@ -1,7 +1,7 @@
 import type { PaginationParams } from "@/types/api.type";
 
 export interface RetrieveItemDto extends PaginationParams {
-  itemTypeId?: number;
+  itemTypeId: number;
   locale: string;
   title?: string;
 }

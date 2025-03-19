@@ -7,11 +7,11 @@
         <div class="grid grid-cols-[auto_1fr_auto] gap-2 w-full flex-grow">
           <!-- Colonne gauche -->
           <div class="equipment-slot-vertical">
-            <EquipmentSlot :item-type-id="134" /> <!-- Helmet -->
-            <EquipmentSlot :item-type-id="120" /> <!-- Amulet -->
-            <EquipmentSlot :item-type-id="136" /> <!-- Breastplate -->
-            <EquipmentSlot :item-type-id="103" /> <!-- Ring -->
-            <EquipmentSlot :item-type-id="647" /> <!-- Costume -->
+            <EquipmentSlot @selectItem="openModal(134)" /> <!-- Helmet -->
+            <EquipmentSlot @selectItem="openModal(120)" /> <!-- Helmet -->
+            <EquipmentSlot @selectItem="openModal(136)" /> <!-- Helmet -->
+            <EquipmentSlot @selectItem="openModal(103)" /> <!-- Helmet -->
+            <EquipmentSlot @selectItem="openModal(647)" /> <!-- Helmet -->
           </div>
           <!-- Colonne centrale (Stats) -->
           <div class="flex h-auto">
@@ -42,12 +42,23 @@
     <div class="md:w-3/5 w-full flex items-center justify-center bg-amber-950">
       <p class="text-white">À voir</p>
     </div>
+    <EquipmentModal :isOpen="isModalOpen" :itemTypeId="selectedItemId" @close="isModalOpen = false" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import EquipmentSlot from '../components/EquipmentSlot.vue';
+import EquipmentModal from '../components/EquipmentModal.vue';
 import Stats from '../components/Stats.vue';
+
+const isModalOpen = ref(false)
+const selectedItemId = ref<number | null>(null)
+
+const openModal = (itemTypeId: number) => {
+  selectedItemId.value = itemTypeId
+  isModalOpen.value = true
+}
 </script>
 <style scoped>
 @reference "../assets/main.css";
