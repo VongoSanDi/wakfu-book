@@ -5,6 +5,7 @@ client/node_modules/
 client/coverage/
 client/dist/
 client/.env
+client/.env.development
 client/.env.local
 client/.env.*.local
 client/bun.lock
@@ -15,6 +16,7 @@ server/logs/
 server/*.log
 server/dist/
 server/.env
+server/.env.development
 server/.env.local
 server/.env.*.local
 server/bun.lock
