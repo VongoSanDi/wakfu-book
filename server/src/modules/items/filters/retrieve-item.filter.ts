@@ -5,7 +5,7 @@ export class RetrieveItemFilter {
   locale: string;
 
   @ApiProperty({ required: false })
-  itemTypeId: number;
+  itemTypeId?: number;
 
   @ApiProperty({ required: false })
   title?: string;

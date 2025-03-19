@@ -1,3 +1,4 @@
+// There are 4 items
 export const testItems = [
   {
     definition: {

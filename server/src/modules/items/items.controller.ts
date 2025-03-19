@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Get,
-  Param,
-  Query,
-  ParseIntPipe,
-} from '@nestjs/common';
+import { Controller, Get, Param, Query, ParseIntPipe } from '@nestjs/common';
 import { ItemsService } from './items.service';
 import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { ApiPaginationQuery } from 'src/common/decorators/pagination.decorator';
@@ -20,7 +14,7 @@ export class ItemsController {
   @ApiOperation({ summary: 'Retrieve all items' })
   @ApiQuery({
     name: 'itemTypeId',
-    required: true,
+    required: false,
     type: Number,
     description: 'Item type',
   })
@@ -37,9 +31,9 @@ export class ItemsController {
     type: RetrieveItemDto,
   })
   async find(
-    @Query('itemTypeId', ParseIntPipe) itemTypeId: number,
     @Query('locale') locale: string,
     @Query() pageOptionsDto: PageOptionsDto,
+    @Query('itemTypeId', ParseIntPipe) itemTypeId?: number,
     @Query('title') title?: string,
   ): Promise<PaginatedResponse<RetrieveItemDto>> {
     const dto = {

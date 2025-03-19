@@ -37,8 +37,9 @@ export class ItemsService {
     // In MongoDB, order format is ASC = 1, DESC = -1
     const sortOrder: SortOrder = order.toUpperCase() === 'DESC' ? -1 : 1;
     const sortQuery = orderBy ? { [orderBy]: sortOrder } : {};
-    const filter = {
-      'definition.item.baseParameters.itemTypeId': itemTypeId,
+    let filter = {}
+    if (itemTypeId) {
+      filter['definition.item.baseParameters.itemTypeId'] = itemTypeId;
     };
     if (title) {
       filter[`title.${locale}`] = { $regex: title, $options: 'i' }; // Recherche insensible à la casse
