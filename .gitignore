@@ -1,6 +1,24 @@
 test/
-node_modules/
-dist/
+coverage/
+
+client/node_modules/
+client/coverage/
+client/dist/
+client/.env
+client/.env.local
+client/.env.*.local
+client/bun.lock
+
+server/node_modules/
+server/coverage/
+server/logs/
+server/*.log
+server/dist/
+server/.env
+server/.env.local
+server/.env.*.local
+server/bun.lock
+
 npm-debug.log
 yarn-error.log
 
