@@ -11,3 +11,10 @@ GET https://wakfu.cdn.ankama.com/gamedata/config.json
 ###
 GET https://wakfu.cdn.ankama.com/gamedata/1.86.4.35/resources.json
 Content-Type: application/json
+###
+GET https://wakfu.cdn.ankama.com/gamedata/1.86.4.35/itemProperties.json
+Content-Type: application/json
+###
+GET https://wakfu.cdn.ankama.com/gamedata/1.86.4.35/actions.json
+Content-Type: application/json
+
