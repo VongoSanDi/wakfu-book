@@ -18,7 +18,7 @@ export class PageOptionsDto {
 
   constructor(partial: Partial<PageOptionsDto>) {
     this.page = partial.page ?? 1;
-    this.take = partial.take ?? 10;
+    this.take = partial.take !== undefined ? partial.take : 10;
     this.order = partial.order ?? 'ASC';
     this.orderBy = partial.orderBy ?? 'definition.id';
 
