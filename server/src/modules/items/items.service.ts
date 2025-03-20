@@ -5,10 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { RetrieveItemDto } from './dto/retrieve-item.dto';
 import { ItemMapper } from './mappings/item-mapper';
 import { PageOptionsDto } from '../../common/dto/page-options.dto';
-import { RetrieveItemFilter } from './filters/retrieve-item.filter';
-import { ValidateSchema } from '../../common/validations/validators';
-import { RetrieveItemsFilterValidation } from './validations/items.validation';
-import { validatePageOptionsDto } from '../../common/validations/page-options.validation';
+import { RetrieveItemFilter } from './validations/items.validation';
 
 @Injectable()
 export class ItemsService {
@@ -24,15 +21,8 @@ export class ItemsService {
     itemCount: number;
     totalCount: number;
   }> {
-    const validatedDto = ValidateSchema<RetrieveItemFilter>(
-      RetrieveItemsFilterValidation,
-      dto,
-    );
-
-    const { itemTypeId, locale, title } = validatedDto;
-
-    const validatedPageOptions = validatePageOptionsDto(pageOptionsDto);
-    const { take, skip, order, orderBy } = validatedPageOptions;
+    const { itemTypeId, locale, title } = dto;
+    const { take, skip, order, orderBy } = pageOptionsDto;
 
     // In MongoDB, order format is ASC = 1, DESC = -1
     const sortOrder: SortOrder = order.toUpperCase() === 'DESC' ? -1 : 1;

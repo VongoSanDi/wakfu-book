@@ -2,12 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ItemsService } from '../items.service';
 import { Model } from 'mongoose';
 import { getModelToken } from '@nestjs/mongoose';
-import { RetrieveItemFilter } from '../filters/retrieve-item.filter';
 import { PageOptionsDto } from '../../../common/dto/page-options.dto';
-import { BadRequestException } from '@nestjs/common';
 import { Item } from '../schemas/item.schema';
 import { testItems } from './test-data';
 import { closeTestDB, initTestDB } from '../../../common/__tests__/db.setup';
+import { RetrieveItemFilter } from '../validations/items.validation';
 
 describe('ItemsService', () => {
   let service: ItemsService;
@@ -41,20 +40,20 @@ describe('ItemsService', () => {
   });
 
   it('should return results when title is not provided but itemTypeId and locale are provided', async () => {
-    const dto: RetrieveItemFilter = {
+    const query: RetrieveItemFilter = {
       itemTypeId: 120,
       locale: 'en',
     };
-    const pageOptionsDto: PageOptionsDto = {
+    const pageOptionsDto = new PageOptionsDto({
       take: 10,
       skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
-    };
+    });
 
     const { data, itemCount, totalCount } = await service.find(
-      dto,
+      query,
       pageOptionsDto,
     );
 
@@ -75,13 +74,13 @@ describe('ItemsService', () => {
       locale: 'en',
       title: '',
     };
-    const pageOptionsDto: PageOptionsDto = {
+    const pageOptionsDto = new PageOptionsDto({
       take: 10,
       skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
-    };
+    });
 
     const { data, itemCount, totalCount } = await service.find(
       dto,
@@ -98,20 +97,20 @@ describe('ItemsService', () => {
   });
 
   it('should return items when all the filters are provided', async () => {
-    const dto: RetrieveItemFilter = {
+    const query: RetrieveItemFilter = {
       itemTypeId: 120,
       locale: 'en',
       title: 'amu',
     };
-    const pageOptionsDto: PageOptionsDto = {
+    const pageOptionsDto = new PageOptionsDto({
       take: 10,
       skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
-    };
+    });
     const { data, itemCount, totalCount } = await service.find(
-      dto,
+      query,
       pageOptionsDto,
     );
 
@@ -125,22 +124,22 @@ describe('ItemsService', () => {
   });
 
   it('should return items even if title is UPPERCASE', async () => {
-    const dto: RetrieveItemFilter = {
+    const query: RetrieveItemFilter = {
       itemTypeId: 120,
       locale: 'en',
       title: 'AMU',
     };
 
-    const pageOptionsDto: PageOptionsDto = {
+    const pageOptionsDto = new PageOptionsDto({
       take: 10,
       skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
-    };
+    });
 
     const { data, itemCount, totalCount } = await service.find(
-      dto,
+      query,
       pageOptionsDto,
     );
 
@@ -153,126 +152,18 @@ describe('ItemsService', () => {
     expect(data[1].title).toBe('Tofu Amulet');
   });
 
-  it('should return an error when take is superior to the accepted limit of 100', async () => {
-    const dto: RetrieveItemFilter = {
-      itemTypeId: 120,
-      locale: 'en',
-    };
-    const pageOptionsDto: PageOptionsDto = {
-      take: 101,
-      skip: 0,
-      page: 1,
-      order: 'ASC',
-      orderBy: 'definition.item.id',
-    };
-
-    // We need to assert the promise directly, not the result, that's why we have to do it that way
-    await expect(service.find(dto, pageOptionsDto)).rejects.toThrow(
-      BadRequestException,
-    );
-  });
-
-  it('should return an error when the locale is not in the zod enum', async () => {
-    const dto: RetrieveItemFilter = {
-      itemTypeId: 120,
-      locale: 'it',
-    };
-    const pageOptionsDto: PageOptionsDto = {
-      take: 10,
-      skip: 0,
-      page: 1,
-      order: 'ASC',
-      orderBy: 'definition.item.id',
-    };
-    await expect(service.find(dto, pageOptionsDto)).rejects.toThrow(
-      BadRequestException,
-    );
-  });
-
-  it('should return error when the locale is not provided', async () => {
-    const dto: RetrieveItemFilter = {
-      itemTypeId: 120,
-      locale: '',
-    };
-    const pageOptionsDto: PageOptionsDto = {
-      take: 10,
-      skip: 0,
-      page: 1,
-      order: 'ASC',
-      orderBy: 'definition.item.id',
-    };
-
-    await expect(service.find(dto, pageOptionsDto)).rejects.toThrow(
-      BadRequestException,
-    );
-  });
-
-  it('should should return an error if page = 0', async () => {
-    const dto: RetrieveItemFilter = {
-      itemTypeId: 120,
-      locale: 'en',
-    };
-    const pageOptionsDto: PageOptionsDto = {
-      take: 10,
-      skip: 0,
-      page: 0,
-      order: 'ASC',
-      orderBy: 'definition.item.id',
-    };
-    await expect(service.find(dto, pageOptionsDto)).rejects.toThrow(
-      BadRequestException,
-    );
-  });
-
-  it('should return an error if page is negative', async () => {
-    const dto: RetrieveItemFilter = {
-      itemTypeId: 120,
-      locale: 'en',
-    };
-
-    const pageOptionsDto: PageOptionsDto = {
-      take: 10,
-      skip: 0,
-      page: -1,
-      order: 'ASC',
-      orderBy: 'definition.item.id',
-    };
-
-    await expect(service.find(dto, pageOptionsDto)).rejects.toThrow(
-      BadRequestException,
-    );
-  });
-
-  it('should return an error if title is a number', async () => {
-    const dto: RetrieveItemFilter = {
-      itemTypeId: 120,
-      locale: 'en',
-      title: 123 as any,
-    };
-    const pageOptionsDto: PageOptionsDto = {
-      take: 10,
-      skip: 0,
-      page: 1,
-      order: 'ASC',
-      orderBy: 'definition.item.id',
-    };
-    await expect(service.find(dto, pageOptionsDto)).rejects.toThrow(
-      BadRequestException,
-    );
-  });
-
   it('should return the exact take number', async () => {
     const dto: RetrieveItemFilter = {
       itemTypeId: 120,
       locale: 'en',
     };
-    const pageOptionsDto: PageOptionsDto = {
+    const pageOptionsDto = new PageOptionsDto({
       take: 1,
       skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
-    };
+    });
 
     const { data, itemCount, totalCount } = await service.find(
       dto,
@@ -290,20 +181,20 @@ describe('ItemsService', () => {
 
   it('should return other item when pagination change', async () => {
     // First page
-    const dto: RetrieveItemFilter = {
+    const query: RetrieveItemFilter = {
       itemTypeId: 120,
       locale: 'en',
     };
-    const pageOptionsDto: PageOptionsDto = {
+    const pageOptionsDto = new PageOptionsDto({
       take: 1,
       skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
-    };
+    });
 
     const { data, itemCount, totalCount } = await service.find(
-      dto,
+      query,
       pageOptionsDto,
     );
 
@@ -311,15 +202,15 @@ describe('ItemsService', () => {
     expect(data[0].title).toBe('Gobball Amulet');
 
     // Second page
-    const pageOptionsDtoBis: PageOptionsDto = {
+    const pageOptionsDtoBis = new PageOptionsDto({
       take: 1,
       skip: 0,
       page: 2,
       order: 'ASC',
       orderBy: 'definition.item.id',
-    };
+    });
 
-    const { data: dataBis } = await service.find(dto, pageOptionsDtoBis);
+    const { data: dataBis } = await service.find(query, pageOptionsDtoBis);
 
     expect(dataBis).toHaveLength(1);
     expect(dataBis[0].title).toBe('Tofu Amulet');
@@ -335,13 +226,13 @@ describe('ItemsService', () => {
       itemTypeId: 180,
       locale: 'en',
     };
-    const pageOptionsDto: PageOptionsDto = {
+    const pageOptionsDto = new PageOptionsDto({
       take: 10,
       skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
-    };
+    });
 
     const { data, itemCount, totalCount } = await service.find(
       dto,
@@ -359,13 +250,13 @@ describe('ItemsService', () => {
       itemTypeId: 120,
       locale: 'en',
     };
-    const pageOptionsDto: PageOptionsDto = {
+    const pageOptionsDto = new PageOptionsDto({
       take: 10,
       skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
-    };
+    });
 
     const { data, itemCount, totalCount } = await service.find(
       dto,
@@ -389,13 +280,13 @@ describe('ItemsService', () => {
       itemTypeId: 120,
       locale: 'en',
     };
-    const pageOptionsDto: PageOptionsDto = {
+    const pageOptionsDto = new PageOptionsDto({
       take: 10,
       skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
-    };
+    });
 
     const { data, itemCount, totalCount } = await service.find(
       dto,
@@ -415,13 +306,13 @@ describe('ItemsService', () => {
 
   it('should return items sorted in ascending order', async () => {
     const dto: RetrieveItemFilter = { itemTypeId: 120, locale: 'en' };
-    const pageOptionsDto: PageOptionsDto = {
+    const pageOptionsDto = new PageOptionsDto({
       take: 10,
       skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
-    };
+    });
 
     const { data } = await service.find(dto, pageOptionsDto);
     expect(data[0].id).toBeLessThan(data[1].id);
@@ -429,29 +320,29 @@ describe('ItemsService', () => {
 
   it('should return items sorted in descending order', async () => {
     const dto: RetrieveItemFilter = { itemTypeId: 120, locale: 'en' };
-    const pageOptionsDto: PageOptionsDto = {
+    const pageOptionsDto = new PageOptionsDto({
       take: 10,
       skip: 0,
       page: 1,
       order: 'DESC',
       orderBy: 'definition.item.id',
-    };
+    });
 
     const { data } = await service.find(dto, pageOptionsDto);
     expect(data[0].id).toBeGreaterThan(data[1].id);
   });
 
   it('should return maximum results <= take because itemTypeId is not provided', async () => {
-    const dto: RetrieveItemFilter = { locale: 'en' };
-    const pageOptionsDto: PageOptionsDto = {
+    const query: RetrieveItemFilter = { locale: 'en' };
+    const pageOptionsDto = new PageOptionsDto({
       take: 10,
       skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
-    };
+    });
     const { data, itemCount, totalCount } = await service.find(
-      dto,
+      query,
       pageOptionsDto,
     );
 

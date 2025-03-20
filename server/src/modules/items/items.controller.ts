@@ -1,10 +1,12 @@
-import { Controller, Get, Param, Query, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Param, Query, BadRequestException } from '@nestjs/common';
 import { ItemsService } from './items.service';
 import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { ApiPaginationQuery } from '../../common/decorators/pagination.decorator';
 import { RetrieveItemDto } from './dto/retrieve-item.dto';
 import { PaginatedResponse } from '../../common/types/response.type';
 import { PageOptionsDto } from '../../common/dto/page-options.dto';
+import { RetrieveItemFilter, RetrieveItemsFilterValidation } from './validations/items.validation';
+import { PageOptionsDtoValidation } from '../../common/validations/page-options.validation';
 
 @Controller('items')
 export class ItemsController {
@@ -31,21 +33,29 @@ export class ItemsController {
     type: RetrieveItemDto,
   })
   async find(
+    @Query() query: Partial<RetrieveItemFilter>,
     @Query() pageOptionsDto: PageOptionsDto,
-    @Query('locale') locale: string,
-    @Query('itemTypeId', ParseIntPipe) itemTypeId?: number,
-    @Query('title') title?: string,
   ): Promise<PaginatedResponse<RetrieveItemDto>> {
-    const dto = {
-      itemTypeId,
-      title,
-      locale,
-    };
+    const filterResult = RetrieveItemsFilterValidation.safeParse(query);
+    if (!filterResult.success) {
+      throw new BadRequestException({
+        message: 'Invalid query parameters',
+        errors: filterResult.error.format(),
+      });
+    }
+    const pageOptionsResult = PageOptionsDtoValidation.safeParse(pageOptionsDto);
+    if (!pageOptionsResult.success) {
+      throw new BadRequestException({
+        message: 'Invalid pagination parameters',
+        errors: pageOptionsResult.error.format(),
+      });
+    }
+    const pageOptionsInstance = new PageOptionsDto(pageOptionsResult.data);
     const { data, itemCount, totalCount } = await this.itemsService.find(
-      dto,
-      pageOptionsDto,
+      filterResult.data,
+      pageOptionsInstance
     );
-    return { data, itemCount, totalCount, pageOptionsDto };
+    return { data, itemCount, totalCount, pageOptionsDto: pageOptionsInstance };
   }
 
   @Get(':id')
