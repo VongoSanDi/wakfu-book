@@ -1,47 +1,55 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { connect, Connection, Model } from 'mongoose';
-import { Item, ItemSchema } from '../../modules/items/schemas/item.schema';
+import mongoose, { Connection } from 'mongoose';
 
-let mongod: MongoMemoryServer;
-let connection: Connection;
-let model: Model<any>;
+let mongod: MongoMemoryServer | null = null;
+let connection: Connection | null = null;
 
 /**
  * Initializes an in-memory MongoDB instance for testing.
- *
- * - Creates a new MongoDB memory server.
+ * - Creates a single MongoDB memory server for all tests.
  * - Establishes a Mongoose connection to the memory server.
- * - Creates a Mongoose model based on the `Item` schema.
  *
- * @returns {Promise<Model<Item>>} The initialized Mongoose model for testing.
+ * @returns {Promise<Connection>} The initialized Mongoose connection.
  */
-export const initTestDB = async (): Promise<Model<Item>> => {
-  mongod = await MongoMemoryServer.create();
-  connection = (await connect(mongod.getUri())).connection;
-  model = connection.model(Item.name, ItemSchema);
-  return model;
+export const initTestDB = async (): Promise<Connection> => {
+  if (!mongod) {
+    mongod = await MongoMemoryServer.create();
+  }
+  if (!connection) {
+    const uri = mongod.getUri();
+    connection = (await mongoose.connect(uri)).connection;
+  }
+  return connection;
 };
 
 /**
  * Closes the in-memory MongoDB instance and cleans up resources.
- *
- * - Drops the test database.
- * - Closes the Mongoose connection.
- * - Stops the memory server.
- *
- * @returns {Promise<void>} Resolves when the database is successfully closed.
+ * Ensures that all connections are properly closed.
  */
 export const closeTestDB = async (): Promise<void> => {
-  await connection.dropDatabase();
-  await connection.close();
-  await mongod.stop();
+  if (connection) {
+    await connection.dropDatabase();
+    await connection.close();
+    connection = null;
+  }
+  if (mongod) {
+    await mongod.stop();
+    mongod = null;
+  }
 };
 
 /**
- * Resets the database by deleting all records from the test collection.
- *
- * @returns {Promise<void>} Resolves when the database is cleared.
+ * Resets the database by deleting all records from all collections.
+ * Ensures a clean slate for each test.
+ * Not used for now since we only read the mock/database
  */
 export const resetDatabase = async (): Promise<void> => {
-  await model.deleteMany({});
+  if (!connection || !connection.db) {
+    throw new Error('Database connection is not initialized.');
+  }
+
+  const collections = await connection.db.collections();
+  for (const collection of collections) {
+    await collection.deleteMany({});
+  }
 };
