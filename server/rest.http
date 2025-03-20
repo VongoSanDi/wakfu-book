@@ -17,4 +17,7 @@ Content-Type: application/json
 ###
 GET https://wakfu.cdn.ankama.com/gamedata/1.86.4.35/actions.json
 Content-Type: application/json
+###
+GET https://wakfu.cdn.ankama.com/gamedata/1.86.4.35/items.json
+Content-Type: application/json
 
