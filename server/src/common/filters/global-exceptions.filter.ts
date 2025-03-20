@@ -10,6 +10,9 @@ import { ApiError } from '../types/api-error.type';
 import { HttpAdapterHost } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 
+/**
+ * Global exception filter that handles and formats all unhandled exceptions in the application.
+ */
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(GlobalExceptionFilter.name);
@@ -22,46 +25,51 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     this.isDevelopment = this.configService.get('NODE_ENV') !== 'production';
   }
 
-  catch(exception: unknown, host: ArgumentsHost) {
+  /**
+   * Handles an incoming exception and sends a formatted response.
+   */
+  catch(exception: Error | HttpException | unknown, host: ArgumentsHost) {
     const { httpAdapter } = this.httpAdapterHost;
     const ctx = host.switchToHttp();
     const request = ctx.getRequest();
 
-    let responseBody: ApiError = {
+    const responseBody = this.formatException(exception, request);
+
+    this.logger.error({
+      exception,
+      path: request.url,
+      method: request.method,
+      body: request.body,
+      timestamp: responseBody.timestamp,
+      stack: (exception as Error).stack,
+    });
+
+    httpAdapter.reply(ctx.getResponse(), responseBody, responseBody.statusCode);
+  }
+
+  /**
+   * Formats the exception into a standardized API error response.
+   */
+  private formatException(
+    exception: Error | HttpException | unknown,
+    request: any,
+  ): ApiError {
+    const defaultResponse: ApiError = {
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       message: 'Internal server error',
       error: 'Internal server error',
       timestamp: new Date().toISOString(),
-      path: httpAdapter.getRequestUrl(ctx.getRequest()),
+      path: request.url,
     };
-
-    const getStackLocation = (error: Error): string | undefined => {
-      if (!this.isDevelopment) return undefined;
-      const stackLines = error.stack?.split('\n');
-      if (!stackLines) return undefined;
-
-      const locationLine = stackLines.find((line, index) => {
-        return (
-          index > 0 && line.includes('at ') && !line.includes('node_modules')
-        );
-      });
-
-      return locationLine?.trim();
-    };
-
-    const queryParams = request.query;
-    const bodyParams = request.body;
-    const urlParams = request.params;
 
     if (exception instanceof HttpException) {
       const exceptionResponse = exception.getResponse();
-      const stackLocation = getStackLocation(exception);
-      responseBody = {
-        ...responseBody,
+      return {
+        ...defaultResponse,
         statusCode: exception.getStatus(),
         message:
           typeof exceptionResponse === 'object' &&
-            'message' in exceptionResponse
+          'message' in exceptionResponse
             ? (exceptionResponse.message as string)
             : exception.message,
         error:
@@ -69,31 +77,39 @@ export class GlobalExceptionFilter implements ExceptionFilter {
             ? exception.name
             : (exceptionResponse as any).error,
         parameters: {
-          query: queryParams,
-          body: bodyParams,
-          params: urlParams,
+          query: request.query,
+          body: request.body,
+          params: request.params,
         },
-        ...(stackLocation && { stackLocation }),
+        stackLocation: this.isDevelopment
+          ? this.getStackLocation(exception)
+          : undefined,
       };
     } else if (exception instanceof Error) {
-      const stackLocation = getStackLocation(exception);
-      responseBody = {
-        ...responseBody,
+      return {
+        ...defaultResponse,
         message: exception.message,
-        ...(stackLocation && { stackLocation }),
+        stackLocation: this.isDevelopment
+          ? this.getStackLocation(exception)
+          : undefined,
       };
     }
+    return defaultResponse;
+  }
 
-    this.logger.error({
-      exception,
-      path: request.url,
-      method: request.method,
-      body: request.body,
-      user: request.user,
-      timestamp: responseBody.timestamp,
-      stack: (exception as Error).stack,
-    });
+  /**
+   * Extracts the first relevant stack trace line for debugging purposes.
+   */
+  private getStackLocation(error: Error): string | undefined {
+    if (!this.isDevelopment) return undefined;
+    const stackLines = error.stack?.split('\n');
+    if (!stackLines) return undefined;
 
-    httpAdapter.reply(ctx.getResponse(), responseBody, responseBody.statusCode);
+    return stackLines
+      .find(
+        (line, index) =>
+          index > 0 && line.includes('at ') && !line.includes('node_modules'),
+      )
+      ?.trim();
   }
 }

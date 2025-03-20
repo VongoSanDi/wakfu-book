@@ -5,13 +5,16 @@ import { ApiPaginationQuery } from '../../common/decorators/pagination.decorator
 import { RetrieveItemDto } from './dto/retrieve-item.dto';
 import { PaginatedResponse } from '../../common/types/response.type';
 import { PageOptionsDto } from '../../common/dto/page-options.dto';
-import { RetrieveItemFilter, RetrieveItemsFilterValidation } from './validations/items.validation';
+import {
+  RetrieveItemFilter,
+  RetrieveItemsFilterValidation,
+} from './validations/items.validation';
 import { PageOptionsDtoValidation } from '../../common/validations/page-options.validation';
 import { handleZodValidation } from '../../common/validations/zod-error.helper';
 
 @Controller('items')
 export class ItemsController {
-  constructor(private readonly itemsService: ItemsService) { }
+  constructor(private readonly itemsService: ItemsService) {}
 
   @Get()
   @ApiOperation({ summary: 'Retrieve all items' })
@@ -50,8 +53,9 @@ export class ItemsController {
     const pageOptionsInstance = new PageOptionsDto(validatedPageOptions);
     const { data, itemCount, totalCount } = await this.itemsService.find(
       validatedFilter,
-      pageOptionsInstance
+      pageOptionsInstance,
     );
+
     return { data, itemCount, totalCount, pageOptionsDto: pageOptionsInstance };
   }
 

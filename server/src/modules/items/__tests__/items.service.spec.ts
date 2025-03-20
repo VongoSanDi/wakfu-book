@@ -353,7 +353,10 @@ describe('ItemsService', () => {
       orderBy: 'definition.item.id',
     });
 
-    const { data, itemCount, totalCount } = await service.find(query, pageOptionsDto);
+    const { data, itemCount, totalCount } = await service.find(
+      query,
+      pageOptionsDto,
+    );
 
     expect(data).toHaveLength(4);
     expect(itemCount).toEqual(4);
@@ -369,7 +372,10 @@ describe('ItemsService', () => {
       orderBy: 'definition.item.id',
     });
 
-    const { data, itemCount, totalCount } = await service.find(dto, pageOptionsDto);
+    const { data, itemCount, totalCount } = await service.find(
+      dto,
+      pageOptionsDto,
+    );
 
     expect(data).toHaveLength(0);
     expect(itemCount).toEqual(0);
@@ -383,7 +389,10 @@ describe('ItemsService', () => {
     };
     const pageOptionsDto = new PageOptionsDto({ take: 10, page: 1 });
 
-    const { data, itemCount, totalCount } = await service.find(query, pageOptionsDto);
+    const { data, itemCount, totalCount } = await service.find(
+      query,
+      pageOptionsDto,
+    );
 
     expect(data).toBeDefined();
     expect(itemCount).toBeGreaterThanOrEqual(0);

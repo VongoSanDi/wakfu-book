@@ -11,8 +11,19 @@ import { RetrieveItemFilter } from './validations/items.validation';
 export class ItemsService {
   constructor(
     @InjectModel(Item.name) private readonly itemModel: Model<ItemDocument>,
-  ) { }
+  ) {}
 
+  /**
+   * Retrieves a paginated list of items based on the provided filters and pagination options.
+   *
+   * @param {RetrieveItemFilter} dto - The filters to apply when retrieving items.
+   * @param {PageOptionsDto} pageOptionsDto - Pagination and sorting options.
+   * @returns {Promise<{ data: RetrieveItemDto[]; itemCount: number; totalCount: number }>}
+   * An object containing:
+   * - `data`: The retrieved items mapped to DTOs.
+   * - `itemCount`: The number of items in the current page.
+   * - `totalCount`: The total number of matching items in the database.
+   */
   async find(
     dto: RetrieveItemFilter,
     pageOptionsDto: PageOptionsDto,

@@ -1,14 +1,23 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiQuery } from '@nestjs/swagger';
 
-export const ApiPaginationQuery = () => {
+/**
+ * Custom decorator that applies pagination query parameters to Swagger documentation.
+ *
+ * This decorator adds the following query parameters:
+ * - `skip`: Number of elements to skip (optional).
+ * - `take`: Number of elements to return (optional).
+ * - `page`: Page number (optional).
+ * - `order`: Sorting direction (`ASC` or `DESC`) (optional).
+ * - `orderBy`: Column used for sorting (optional).
+ *
+ * @example
+ * ```
+ * /items?take=10&page=2&order=ASC&orderBy=definition.item.id
+ * ```
+ */
+export const ApiPaginationQuery = (): MethodDecorator & ClassDecorator => {
   return applyDecorators(
-    ApiQuery({
-      name: 'skip',
-      required: false,
-      description: 'Number of element to skip',
-      type: Number,
-    }),
     ApiQuery({
       name: 'take',
       required: false,

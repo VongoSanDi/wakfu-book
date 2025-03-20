@@ -60,7 +60,7 @@ describe('ItemsController', () => {
 
     const { data, itemCount, totalCount } = await controller.find(
       query,
-      pageOptionsDto
+      pageOptionsDto,
     );
 
     expect(data).toBeDefined();
@@ -82,7 +82,7 @@ describe('ItemsController', () => {
 
     const { data, itemCount, totalCount } = await controller.find(
       query,
-      pageOptionsDto
+      pageOptionsDto,
     );
 
     expect(data).toBeDefined();
@@ -99,9 +99,7 @@ describe('ItemsController', () => {
       orderBy: 'definition.item.id',
     });
 
-    await expect(
-      controller.find(query, pageOptionsDto),
-    ).rejects.toThrow();
+    await expect(controller.find(query, pageOptionsDto)).rejects.toThrow();
   });
 
   it('should return a transformed paginated result via the interceptor', async () => {
@@ -113,13 +111,10 @@ describe('ItemsController', () => {
       orderBy: 'definition.item.id',
     });
 
-    const rawResponse = await controller.find(
-      query,
-      pageOptionsDto
-    );
+    const rawResponse = await controller.find(query, pageOptionsDto);
 
     const interceptor = new TransformInterceptor<
-      typeof rawResponse.data[number] // Récupère le type d’un élément du tableau
+      (typeof rawResponse.data)[number] // Récupère le type d’un élément du tableau
     >();
 
     const executionContextMock = {
@@ -130,16 +125,19 @@ describe('ItemsController', () => {
         handle: () => of(rawResponse),
       } as any),
     );
+
     expect(transformedResponse.data).toBeInstanceOf(Array);
     expect(transformedResponse.meta).toBeInstanceOf(Object);
-    expect(typeof transformedResponse.timestamp).toBe('string')
-    expect(transformedResponse.data![0]).toHaveProperty('id')
-    expect(transformedResponse.data![0].baseParameters).toHaveProperty('itemTypeId')
-    expect(transformedResponse.meta!.page).toEqual(1)
-    expect(transformedResponse.meta!.itemCount).toEqual(1)
-    expect(transformedResponse.meta!.totalCount).toEqual(2)
-    expect(transformedResponse.meta!.hasPreviousPage).toBe(false)
-    expect(transformedResponse.meta!.hasNextPage).toBe(true)
+    expect(typeof transformedResponse.timestamp).toBe('string');
+    expect(transformedResponse.data![0]).toHaveProperty('id');
+    expect(transformedResponse.data![0].baseParameters).toHaveProperty(
+      'itemTypeId',
+    );
+    expect(transformedResponse.meta!.page).toEqual(1);
+    expect(transformedResponse.meta!.itemCount).toEqual(1);
+    expect(transformedResponse.meta!.totalCount).toEqual(2);
+    expect(transformedResponse.meta!.hasPreviousPage).toBe(false);
+    expect(transformedResponse.meta!.hasNextPage).toBe(true);
   });
 
   it('should return error when the locale is not provided', async () => {
@@ -254,14 +252,18 @@ describe('ItemsController', () => {
       orderBy: 'definition.item.id',
     });
 
-    await expect(controller.find(dto, pageOptionsDto)).rejects.toThrow(BadRequestException);
+    await expect(controller.find(dto, pageOptionsDto)).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('should return an error if locale is an empty string', async () => {
     const dto: RetrieveItemFilter = { locale: '' as any }; // Invalide
     const pageOptionsDto = new PageOptionsDto({ take: 10, page: 1 });
 
-    await expect(controller.find(dto, pageOptionsDto)).rejects.toThrow(BadRequestException);
+    await expect(controller.find(dto, pageOptionsDto)).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('should return an error if orderBy is invalid', async () => {
@@ -273,7 +275,8 @@ describe('ItemsController', () => {
       orderBy: 'invalidColumn', // ❌ Colonne inexistante
     });
 
-    await expect(controller.find(dto, pageOptionsDto)).rejects.toThrow(BadRequestException);
+    await expect(controller.find(dto, pageOptionsDto)).rejects.toThrow(
+      BadRequestException,
+    );
   });
-
 });

@@ -20,7 +20,10 @@ export function handleZodValidation<T>(
 ): T {
   if (!result.success) {
     if (options.logError) {
-      logger.warn(`Validation error: ${options.message}`, result.error.format());
+      logger.warn(
+        `Validation error: ${options.message}`,
+        result.error.format(),
+      );
     }
     throw new BadRequestException({
       message: options.message,
