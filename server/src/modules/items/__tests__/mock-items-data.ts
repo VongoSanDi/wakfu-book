@@ -1,12 +1,12 @@
 /**
- * Mock dataset representing a collection of in-game items.
- * 
+ * Mock dataset representing a collection of in-game items, it contains 4 items.
+ *
  * Each item contains:
  * - `definition`: Detailed item attributes such as ID, level, parameters, effects, and properties.
  * - `title`: Item name in multiple languages (`fr`, `en`, `es`, `pt`).
  * - `description`: Item description in multiple languages.
  */
-export const testItems = [
+export const mockItemsData = [
   {
     definition: {
       item: {
