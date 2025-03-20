@@ -51,13 +51,12 @@ describe('ItemsController', () => {
       itemTypeId: 120,
       locale: 'en',
     };
-    const pageOptionsDto: PageOptionsDto = {
+    const pageOptionsDto = new PageOptionsDto({
       take: 1,
-      skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
-    };
+    });
 
     const { data, itemCount, totalCount } = await controller.find(
       query,
@@ -74,13 +73,12 @@ describe('ItemsController', () => {
 
   it('should return items when itemTypeId is not provided', async () => {
     const query: RetrieveItemFilter = { locale: 'en' };
-    const pageOptionsDto: PageOptionsDto = {
+    const pageOptionsDto = new PageOptionsDto({
       take: 10,
-      skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
-    };
+    });
 
     const { data, itemCount, totalCount } = await controller.find(
       query,
@@ -94,13 +92,12 @@ describe('ItemsController', () => {
 
   it('should exception when locale is missing', async () => {
     const query: Partial<RetrieveItemFilter> = {};
-    const pageOptionsDto: PageOptionsDto = {
+    const pageOptionsDto = new PageOptionsDto({
       take: 10,
-      skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
-    };
+    });
 
     await expect(
       controller.find(query, pageOptionsDto),
@@ -109,13 +106,12 @@ describe('ItemsController', () => {
 
   it('should return a transformed paginated result via the interceptor', async () => {
     const query: RetrieveItemFilter = { itemTypeId: 120, locale: 'en' };
-    const pageOptionsDto: PageOptionsDto = {
+    const pageOptionsDto = new PageOptionsDto({
       take: 1,
-      skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
-    };
+    });
 
     const rawResponse = await controller.find(
       query,
@@ -153,7 +149,6 @@ describe('ItemsController', () => {
     };
     const pageOptionsDto = new PageOptionsDto({
       take: 10,
-      skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
@@ -172,7 +167,6 @@ describe('ItemsController', () => {
 
     const pageOptionsDto = new PageOptionsDto({
       take: 10,
-      skip: 0,
       page: -1,
       order: 'ASC',
       orderBy: 'definition.item.id',
@@ -191,7 +185,6 @@ describe('ItemsController', () => {
     };
     const pageOptionsDto = new PageOptionsDto({
       take: 10,
-      skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
@@ -208,7 +201,6 @@ describe('ItemsController', () => {
     };
     const pageOptionsDto = new PageOptionsDto({
       take: 10,
-      skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
@@ -225,7 +217,6 @@ describe('ItemsController', () => {
     };
     const pageOptionsDto = new PageOptionsDto({
       take: 10,
-      skip: 0,
       page: 0,
       order: 'ASC',
       orderBy: 'definition.item.id',
@@ -241,17 +232,48 @@ describe('ItemsController', () => {
       itemTypeId: 120,
       locale: 'en',
     };
-    const pageOptionsDto: PageOptionsDto = {
+    const pageOptionsDto = new PageOptionsDto({
       take: 101,
-      skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
-    };
+    });
 
     // We need to assert the promise directly, not the result, that's why we have to do it that way
     await expect(controller.find(dto, pageOptionsDto)).rejects.toThrow(
       BadRequestException,
     );
   });
+
+  it('should return an error if take is negative', async () => {
+    const dto: RetrieveItemFilter = { locale: 'en' };
+    const pageOptionsDto = new PageOptionsDto({
+      take: -5,
+      page: 1,
+      order: 'ASC',
+      orderBy: 'definition.item.id',
+    });
+
+    await expect(controller.find(dto, pageOptionsDto)).rejects.toThrow(BadRequestException);
+  });
+
+  it('should return an error if locale is an empty string', async () => {
+    const dto: RetrieveItemFilter = { locale: '' as any }; // Invalide
+    const pageOptionsDto = new PageOptionsDto({ take: 10, page: 1 });
+
+    await expect(controller.find(dto, pageOptionsDto)).rejects.toThrow(BadRequestException);
+  });
+
+  it('should return an error if orderBy is invalid', async () => {
+    const dto: RetrieveItemFilter = { locale: 'en' };
+    const pageOptionsDto = new PageOptionsDto({
+      take: 10,
+      page: 1,
+      order: 'ASC',
+      orderBy: 'invalidColumn', // ❌ Colonne inexistante
+    });
+
+    await expect(controller.find(dto, pageOptionsDto)).rejects.toThrow(BadRequestException);
+  });
+
 });

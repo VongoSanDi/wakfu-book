@@ -46,7 +46,6 @@ describe('ItemsService', () => {
     };
     const pageOptionsDto = new PageOptionsDto({
       take: 10,
-      skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
@@ -69,21 +68,20 @@ describe('ItemsService', () => {
   });
 
   it('should return results when title is an empty string', async () => {
-    const dto: RetrieveItemFilter = {
+    const query: RetrieveItemFilter = {
       itemTypeId: 120,
       locale: 'en',
       title: '',
     };
     const pageOptionsDto = new PageOptionsDto({
       take: 10,
-      skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
     });
 
     const { data, itemCount, totalCount } = await service.find(
-      dto,
+      query,
       pageOptionsDto,
     );
 
@@ -104,7 +102,6 @@ describe('ItemsService', () => {
     };
     const pageOptionsDto = new PageOptionsDto({
       take: 10,
-      skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
@@ -132,7 +129,6 @@ describe('ItemsService', () => {
 
     const pageOptionsDto = new PageOptionsDto({
       take: 10,
-      skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
@@ -153,20 +149,19 @@ describe('ItemsService', () => {
   });
 
   it('should return the exact take number', async () => {
-    const dto: RetrieveItemFilter = {
+    const query: RetrieveItemFilter = {
       itemTypeId: 120,
       locale: 'en',
     };
     const pageOptionsDto = new PageOptionsDto({
       take: 1,
-      skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
     });
 
     const { data, itemCount, totalCount } = await service.find(
-      dto,
+      query,
       pageOptionsDto,
     );
 
@@ -187,7 +182,6 @@ describe('ItemsService', () => {
     };
     const pageOptionsDto = new PageOptionsDto({
       take: 1,
-      skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
@@ -204,7 +198,6 @@ describe('ItemsService', () => {
     // Second page
     const pageOptionsDtoBis = new PageOptionsDto({
       take: 1,
-      skip: 0,
       page: 2,
       order: 'ASC',
       orderBy: 'definition.item.id',
@@ -222,20 +215,19 @@ describe('ItemsService', () => {
   });
 
   it('should return an empty array if no items correspond to the filter', async () => {
-    const dto: RetrieveItemFilter = {
+    const query: RetrieveItemFilter = {
       itemTypeId: 180,
       locale: 'en',
     };
     const pageOptionsDto = new PageOptionsDto({
       take: 10,
-      skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
     });
 
     const { data, itemCount, totalCount } = await service.find(
-      dto,
+      query,
       pageOptionsDto,
     );
 
@@ -246,20 +238,19 @@ describe('ItemsService', () => {
   });
 
   it('should only return the property defined in the project', async () => {
-    const dto: RetrieveItemFilter = {
+    const query: RetrieveItemFilter = {
       itemTypeId: 120,
       locale: 'en',
     };
     const pageOptionsDto = new PageOptionsDto({
       take: 10,
-      skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
     });
 
     const { data, itemCount, totalCount } = await service.find(
-      dto,
+      query,
       pageOptionsDto,
     );
 
@@ -276,20 +267,19 @@ describe('ItemsService', () => {
   });
 
   it('should return plain JavaScript objects (not mongoose Documents) since we use lean() and not exec()', async () => {
-    const dto: RetrieveItemFilter = {
+    const query: RetrieveItemFilter = {
       itemTypeId: 120,
       locale: 'en',
     };
     const pageOptionsDto = new PageOptionsDto({
       take: 10,
-      skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
     });
 
     const { data, itemCount, totalCount } = await service.find(
-      dto,
+      query,
       pageOptionsDto,
     );
 
@@ -305,30 +295,28 @@ describe('ItemsService', () => {
   });
 
   it('should return items sorted in ascending order', async () => {
-    const dto: RetrieveItemFilter = { itemTypeId: 120, locale: 'en' };
+    const query: RetrieveItemFilter = { itemTypeId: 120, locale: 'en' };
     const pageOptionsDto = new PageOptionsDto({
       take: 10,
-      skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
     });
 
-    const { data } = await service.find(dto, pageOptionsDto);
+    const { data } = await service.find(query, pageOptionsDto);
     expect(data[0].id).toBeLessThan(data[1].id);
   });
 
   it('should return items sorted in descending order', async () => {
-    const dto: RetrieveItemFilter = { itemTypeId: 120, locale: 'en' };
+    const query: RetrieveItemFilter = { itemTypeId: 120, locale: 'en' };
     const pageOptionsDto = new PageOptionsDto({
       take: 10,
-      skip: 0,
       page: 1,
       order: 'DESC',
       orderBy: 'definition.item.id',
     });
 
-    const { data } = await service.find(dto, pageOptionsDto);
+    const { data } = await service.find(query, pageOptionsDto);
     expect(data[0].id).toBeGreaterThan(data[1].id);
   });
 
@@ -336,7 +324,6 @@ describe('ItemsService', () => {
     const query: RetrieveItemFilter = { locale: 'en' };
     const pageOptionsDto = new PageOptionsDto({
       take: 10,
-      skip: 0,
       page: 1,
       order: 'ASC',
       orderBy: 'definition.item.id',
@@ -355,5 +342,51 @@ describe('ItemsService', () => {
     expect(data[0]).toHaveProperty('title');
     expect(data[1].id).toEqual(2022);
     expect(data[1]).toHaveProperty('level');
+  });
+
+  it('should return all items when take equals totalCount', async () => {
+    const query: RetrieveItemFilter = { locale: 'en' };
+    const pageOptionsDto = new PageOptionsDto({
+      take: 4,
+      page: 1,
+      order: 'ASC',
+      orderBy: 'definition.item.id',
+    });
+
+    const { data, itemCount, totalCount } = await service.find(query, pageOptionsDto);
+
+    expect(data).toHaveLength(4);
+    expect(itemCount).toEqual(4);
+    expect(totalCount).toEqual(4);
+  });
+
+  it('should return an empty list when skip exceeds totalCount', async () => {
+    const dto: RetrieveItemFilter = { locale: 'en' };
+    const pageOptionsDto = new PageOptionsDto({
+      take: 10,
+      page: 11, // Does not exist
+      order: 'ASC',
+      orderBy: 'definition.item.id',
+    });
+
+    const { data, itemCount, totalCount } = await service.find(dto, pageOptionsDto);
+
+    expect(data).toHaveLength(0);
+    expect(itemCount).toEqual(0);
+    expect(totalCount).toBeGreaterThan(0);
+  });
+
+  it('should return results when title contains special characters', async () => {
+    const query: RetrieveItemFilter = {
+      locale: 'en',
+      title: '$amu%',
+    };
+    const pageOptionsDto = new PageOptionsDto({ take: 10, page: 1 });
+
+    const { data, itemCount, totalCount } = await service.find(query, pageOptionsDto);
+
+    expect(data).toBeDefined();
+    expect(itemCount).toBeGreaterThanOrEqual(0);
+    expect(totalCount).toBeGreaterThanOrEqual(0);
   });
 });
