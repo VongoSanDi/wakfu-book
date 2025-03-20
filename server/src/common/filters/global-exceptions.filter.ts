@@ -57,30 +57,33 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const defaultResponse: ApiError = {
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
       message: 'Internal server error',
-      error: 'Internal server error',
+      errors: 'Internal server error',
       timestamp: new Date().toISOString(),
       path: request.url,
     };
 
     if (exception instanceof HttpException) {
       const exceptionResponse = exception.getResponse();
+
+      const detailedErrors =
+        typeof exceptionResponse === 'object' && 'errors' in exceptionResponse
+          ? (exceptionResponse as any).errors
+          : {};
+
       return {
         ...defaultResponse,
         statusCode: exception.getStatus(),
         message:
           typeof exceptionResponse === 'object' &&
-          'message' in exceptionResponse
+            'message' in exceptionResponse
             ? (exceptionResponse.message as string)
             : exception.message,
-        error:
-          typeof exceptionResponse === 'string'
-            ? exception.name
-            : (exceptionResponse as any).error,
         parameters: {
           query: request.query,
           body: request.body,
           params: request.params,
         },
+        errors: detailedErrors ?? exceptionResponse,
         stackLocation: this.isDevelopment
           ? this.getStackLocation(exception)
           : undefined,

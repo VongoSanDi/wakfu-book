@@ -19,6 +19,7 @@ export function handleZodValidation<T>(
   options: ValidationOptions,
 ): T {
   if (!result.success) {
+    const formattedErrors = result.error.format();
     if (options.logError) {
       logger.warn(
         `Validation error: ${options.message}`,
@@ -27,7 +28,7 @@ export function handleZodValidation<T>(
     }
     throw new BadRequestException({
       message: options.message,
-      errors: result.error.format(),
+      errors: formattedErrors
     });
   }
   return result.data;

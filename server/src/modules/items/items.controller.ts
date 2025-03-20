@@ -15,10 +15,10 @@ import { LocaleFilterValidation } from '../../common/validations/locale-validati
 
 @Controller('items')
 export class ItemsController {
-  constructor(private readonly itemsService: ItemsService) {}
+  constructor(private readonly itemsService: ItemsService) { }
 
-  @Get()
-  @ApiOperation({ summary: 'Retrieve items based on the filter' })
+  @Get(':locale')
+  @ApiOperation({ summary: 'Retrieve items' })
   @ApiQuery({
     name: 'itemTypeId',
     required: false,
@@ -67,8 +67,8 @@ export class ItemsController {
     return { data, itemCount, totalCount, pageOptionsDto: pageOptionsInstance };
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.itemsService.findOne(+id);
-  }
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.itemsService.findOne(+id);
+  // }
 }

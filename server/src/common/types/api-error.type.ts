@@ -20,7 +20,7 @@ export interface ApiError {
    * Typically a short description of the error type.
    * Example: `"Bad Request"`, `"Unauthorized"`, `"Internal Server Error"`
    */
-  error: string;
+  errors: string;
 
   /**
    * Timestamp indicating when the error occurred, in ISO 8601 format.
