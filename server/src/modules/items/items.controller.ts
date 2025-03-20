@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ItemsService } from './items.service';
 import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { ApiPaginationQuery } from '../../common/decorators/pagination.decorator';
@@ -7,6 +7,7 @@ import { PaginatedResponse } from '../../common/types/response.type';
 import { PageOptionsDto } from '../../common/dto/page-options.dto';
 import { RetrieveItemFilter, RetrieveItemsFilterValidation } from './validations/items.validation';
 import { PageOptionsDtoValidation } from '../../common/validations/page-options.validation';
+import { handleZodValidation } from '../../common/validations/zod-error.helper';
 
 @Controller('items')
 export class ItemsController {
@@ -36,23 +37,19 @@ export class ItemsController {
     @Query() query: Partial<RetrieveItemFilter>,
     @Query() pageOptionsDto: PageOptionsDto,
   ): Promise<PaginatedResponse<RetrieveItemDto>> {
-    const filterResult = RetrieveItemsFilterValidation.safeParse(query);
-    if (!filterResult.success) {
-      throw new BadRequestException({
-        message: 'Invalid query parameters',
-        errors: filterResult.error.format(),
-      });
-    }
-    const pageOptionsResult = PageOptionsDtoValidation.safeParse(pageOptionsDto);
-    if (!pageOptionsResult.success) {
-      throw new BadRequestException({
-        message: 'Invalid pagination parameters',
-        errors: pageOptionsResult.error.format(),
-      });
-    }
-    const pageOptionsInstance = new PageOptionsDto(pageOptionsResult.data);
+    const validatedFilter = handleZodValidation(
+      RetrieveItemsFilterValidation.safeParse(query),
+      { message: 'Invalid query parameters', logError: true },
+    );
+
+    const validatedPageOptions = handleZodValidation(
+      PageOptionsDtoValidation.safeParse(pageOptionsDto),
+      { message: 'Invalid pagination parameters', logError: true },
+    );
+
+    const pageOptionsInstance = new PageOptionsDto(validatedPageOptions);
     const { data, itemCount, totalCount } = await this.itemsService.find(
-      filterResult.data,
+      validatedFilter,
       pageOptionsInstance
     );
     return { data, itemCount, totalCount, pageOptionsDto: pageOptionsInstance };
