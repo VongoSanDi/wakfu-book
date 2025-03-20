@@ -10,7 +10,6 @@ const orderByEnum = z
 
 export const PageOptionsDtoValidation = z.object({
   take: z.number().min(1).max(100).default(10),
-  skip: z.number().min(0).default(0),
   order: z.enum(['ASC', 'DESC']).default('ASC'),
   orderBy: orderByEnum,
   page: z.number().min(1).default(1).optional(),
