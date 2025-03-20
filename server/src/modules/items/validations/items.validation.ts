@@ -1,17 +1,6 @@
 import { z } from 'zod';
 
 /**
- * Enum schema for validating supported locales.
- *
- * Supported values:
- * - `'fr'` (French)
- * - `'en'` (English)
- * - `'es'` (Spanish)
- * - `'pt'` (Portuguese)
- */
-const localeValidation = z.enum(['fr', 'en', 'es', 'pt']);
-
-/**
  * Zod schema for validating item retrieval filters.
  *
  * This schema ensures that:
@@ -21,7 +10,6 @@ const localeValidation = z.enum(['fr', 'en', 'es', 'pt']);
  */
 export const RetrieveItemsFilterValidation = z.object({
   itemTypeId: z.number().int().positive().optional(),
-  locale: localeValidation,
   title: z.string().optional(),
 });
 

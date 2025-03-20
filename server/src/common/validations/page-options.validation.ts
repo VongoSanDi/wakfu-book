@@ -12,9 +12,9 @@ import { z } from 'zod';
  */
 const orderByEnum = z
   .enum([
+    'id',
     'definition.item.id',
     'definition.item.baseParameters.itemTypeId',
-    'definition.item.title',
   ])
   .optional();
 

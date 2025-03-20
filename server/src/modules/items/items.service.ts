@@ -6,6 +6,7 @@ import { RetrieveItemDto } from './dto/retrieve-item.dto';
 import { ItemMapper } from './mappings/item-mapper';
 import { PageOptionsDto } from '../../common/dto/page-options.dto';
 import { RetrieveItemFilter } from './validations/items.validation';
+import { LocaleFilter } from '../../common/validations/locale-validation';
 
 @Injectable()
 export class ItemsService {
@@ -16,7 +17,8 @@ export class ItemsService {
   /**
    * Retrieves a paginated list of items based on the provided filters and pagination options.
    *
-   * @param {RetrieveItemFilter} dto - The filters to apply when retrieving items.
+   * @param {LocaleFilter} locale - The locale in which we want the title/description
+   * @param {RetrieveItemFilter} query - The filters to apply when retrieving items.
    * @param {PageOptionsDto} pageOptionsDto - Pagination and sorting options.
    * @returns {Promise<{ data: RetrieveItemDto[]; itemCount: number; totalCount: number }>}
    * An object containing:
@@ -25,21 +27,22 @@ export class ItemsService {
    * - `totalCount`: The total number of matching items in the database.
    */
   async find(
-    dto: RetrieveItemFilter,
+    locale: LocaleFilter,
+    query: RetrieveItemFilter,
     pageOptionsDto: PageOptionsDto,
   ): Promise<{
     data: RetrieveItemDto[];
     itemCount: number;
     totalCount: number;
   }> {
-    const { itemTypeId, locale, title } = dto;
+    const { itemTypeId, title } = query;
     const { take, skip, order, orderBy } = pageOptionsDto;
 
     // In MongoDB, order format is ASC = 1, DESC = -1
     const sortOrder: SortOrder = order.toUpperCase() === 'DESC' ? -1 : 1;
     const sortQuery = orderBy ? { [orderBy]: sortOrder } : {};
-    let filter = {};
-    if (itemTypeId) {
+    const filter: Record<string, any> = {};
+    if (itemTypeId !== undefined) {
       filter['definition.item.baseParameters.itemTypeId'] = itemTypeId;
     }
     if (title) {

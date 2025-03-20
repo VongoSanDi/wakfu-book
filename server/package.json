@@ -66,6 +66,7 @@
       "json",
       "ts"
     ],
+    "setupFilesAfterEnv": ["<rootDir>/setupTests.ts"],
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
