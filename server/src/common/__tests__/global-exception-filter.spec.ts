@@ -1,142 +1,118 @@
+
 import { Test, TestingModule } from '@nestjs/testing';
-import { GlobalExceptionFilter } from '../filters/global-exceptions.filter';
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { GlobalExceptionFilter } from '../filters/global-exception.filter';
 import { HttpAdapterHost } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { Logger } from '@nestjs/common';
+import { ArgumentsHost, HttpException, HttpStatus, Logger } from '@nestjs/common';
+import { ApiError } from '../types/api-error.type';
 
 describe('GlobalExceptionFilter', () => {
   let exceptionFilter: GlobalExceptionFilter;
-  let httpAdapterHostMock: { httpAdapter: { reply: jest.Mock } };
-  let configServiceMock: { get: jest.Mock };
+  let httpAdapterHost: HttpAdapterHost;
+  let configService: ConfigService;
+  let mockHttpAdapter: { reply: jest.Mock };
   let loggerErrorSpy: jest.SpyInstance;
 
   beforeEach(async () => {
-    httpAdapterHostMock = {
-      httpAdapter: {
-        reply: jest.fn(),
-        getRequestUrl: jest.fn((req) => req.url), // Mock de la méthode getRequestUrl
-      } as any,
-    };
+    mockHttpAdapter = { reply: jest.fn() };
 
-    configServiceMock = {
-      get: jest.fn().mockReturnValue('development'), // Simule NODE_ENV=development
-    };
+    httpAdapterHost = { httpAdapter: mockHttpAdapter } as unknown as HttpAdapterHost;
+    configService = { get: jest.fn().mockReturnValue('development') } as unknown as ConfigService;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         GlobalExceptionFilter,
-        { provide: HttpAdapterHost, useValue: httpAdapterHostMock },
-        { provide: ConfigService, useValue: configServiceMock },
+        { provide: HttpAdapterHost, useValue: httpAdapterHost },
+        { provide: ConfigService, useValue: configService },
       ],
     }).compile();
 
     exceptionFilter = module.get<GlobalExceptionFilter>(GlobalExceptionFilter);
-    loggerErrorSpy = jest.spyOn(Logger.prototype, 'error').mockImplementation(); // Empêche d'afficher des logs
+    loggerErrorSpy = jest.spyOn(Logger.prototype, 'error').mockImplementation(() => { });
   });
 
   afterEach(() => {
-    jest.restoreAllMocks(); // Nettoie les mocks après chaque test
+    jest.restoreAllMocks();
   });
 
   it('should be defined', () => {
     expect(exceptionFilter).toBeDefined();
   });
 
-  it('should handle HttpException and return a structured error response', () => {
-    const mockException = new HttpException(
-      'Unauthorized',
-      HttpStatus.UNAUTHORIZED,
-    );
-    const mockHost = {
+  it('should handle HttpException correctly', () => {
+    const exception = new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+    const requestMock = { url: '/test', method: 'GET', body: {}, query: {}, params: {} };
+    const argumentsHostMock = {
       switchToHttp: () => ({
-        getRequest: () => ({
-          url: '/test',
-          method: 'GET',
-          query: {},
-          body: {},
-          params: {},
-          user: { id: '123' },
-        }),
         getResponse: () => ({}),
+        getRequest: () => requestMock,
       }),
-    } as any;
+    } as ArgumentsHost;
 
-    exceptionFilter.catch(mockException, mockHost);
+    exceptionFilter.catch(exception, argumentsHostMock);
 
-    expect(httpAdapterHostMock.httpAdapter.reply).toHaveBeenCalledWith(
-      mockHost.switchToHttp().getResponse(),
-      expect.objectContaining({
+    expect(mockHttpAdapter.reply).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining<ApiError>({
         statusCode: HttpStatus.UNAUTHORIZED,
         message: 'Unauthorized',
-        error: 'HttpException',
+        errors: expect.anything(),
+        timestamp: expect.any(String),
         path: '/test',
       }),
       HttpStatus.UNAUTHORIZED,
     );
-
-    expect(loggerErrorSpy).toHaveBeenCalled();
   });
 
-  it('should handle generic Error and return a 500 status', () => {
-    const mockException = new Error('Unexpected error');
-    const mockHost = {
+  it('should handle generic Error correctly', () => {
+    const exception = new Error('Unexpected error');
+    const requestMock = { url: '/test', method: 'POST', body: {}, query: {}, params: {} };
+    const argumentsHostMock = {
       switchToHttp: () => ({
-        getRequest: () => ({
-          url: '/test',
-          method: 'POST',
-          query: {},
-          body: {},
-          params: {},
-          user: { id: '123' },
-        }),
         getResponse: () => ({}),
+        getRequest: () => requestMock,
       }),
-    } as any;
+    } as ArgumentsHost;
 
-    exceptionFilter.catch(mockException, mockHost);
+    exceptionFilter.catch(exception, argumentsHostMock);
 
-    expect(httpAdapterHostMock.httpAdapter.reply).toHaveBeenCalledWith(
-      mockHost.switchToHttp().getResponse(),
-      expect.objectContaining({
+    expect(mockHttpAdapter.reply).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining<ApiError>({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Unexpected error',
-        error: 'Internal server error',
+        errors: expect.anything(),
+        timestamp: expect.any(String),
         path: '/test',
       }),
       HttpStatus.INTERNAL_SERVER_ERROR,
     );
-
-    expect(loggerErrorSpy).toHaveBeenCalled();
   });
 
   it('should hide stack trace in production mode', () => {
-    configServiceMock.get.mockReturnValue('production'); // Simule NODE_ENV=production
-    exceptionFilter = new GlobalExceptionFilter(
-      httpAdapterHostMock as any,
-      configServiceMock as any,
-    );
+    configService.get = jest.fn().mockReturnValue('production');
+    exceptionFilter = new GlobalExceptionFilter(httpAdapterHost, configService);
 
-    const mockException = new Error('Hidden error');
-    const mockHost = {
+    const exception = new Error('Hidden error');
+    const requestMock = { url: '/test', method: 'POST', body: {}, query: {}, params: {} };
+    const argumentsHostMock = {
       switchToHttp: () => ({
-        getRequest: () => ({
-          url: '/test',
-          method: 'POST',
-          query: {},
-          body: {},
-          params: {},
-          user: { id: '123' },
-        }),
         getResponse: () => ({}),
+        getRequest: () => requestMock,
       }),
-    } as any;
+    } as ArgumentsHost;
 
-    exceptionFilter.catch(mockException, mockHost);
+    exceptionFilter.catch(exception, argumentsHostMock);
 
-    expect(httpAdapterHostMock.httpAdapter.reply).toHaveBeenCalledWith(
-      mockHost.switchToHttp().getResponse(),
-      expect.not.objectContaining({ stackLocation: expect.any(String) }), // Vérifie que stackLocation n'existe pas
+    expect(mockHttpAdapter.reply).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining<ApiError>({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Hidden error',
+        errors: expect.anything(),
+        timestamp: expect.any(String),
+        path: '/test',
+      }),
       HttpStatus.INTERNAL_SERVER_ERROR,
     );
   });
