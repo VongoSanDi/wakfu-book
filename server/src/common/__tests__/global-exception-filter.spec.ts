@@ -44,7 +44,10 @@ describe('GlobalExceptionFilter', () => {
   });
 
   it('should handle HttpException and return a structured error response', () => {
-    const mockException = new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+    const mockException = new HttpException(
+      'Unauthorized',
+      HttpStatus.UNAUTHORIZED,
+    );
     const mockHost = {
       switchToHttp: () => ({
         getRequest: () => ({
@@ -109,7 +112,10 @@ describe('GlobalExceptionFilter', () => {
 
   it('should hide stack trace in production mode', () => {
     configServiceMock.get.mockReturnValue('production'); // Simule NODE_ENV=production
-    exceptionFilter = new GlobalExceptionFilter(httpAdapterHostMock as any, configServiceMock as any);
+    exceptionFilter = new GlobalExceptionFilter(
+      httpAdapterHostMock as any,
+      configServiceMock as any,
+    );
 
     const mockException = new Error('Hidden error');
     const mockHost = {
