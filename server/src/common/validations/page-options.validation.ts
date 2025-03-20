@@ -1,6 +1,4 @@
 import { z } from 'zod';
-import { PageOptionsDto } from '../dto/page-options.dto';
-import { ValidateSchema } from './validators';
 
 const orderByEnum = z
   .enum([
@@ -17,15 +15,3 @@ export const PageOptionsDtoValidation = z.object({
   orderBy: orderByEnum,
   page: z.number().min(1).default(1).optional(),
 });
-
-// Create an instance of PageOptionsDto so it can run through the constructor and calculate the skip automatically
-// Without this, it returns plain object(without functions or getters) and don't pass through the getter
-export function validatePageOptionsDto(
-  dto: Partial<PageOptionsDto>,
-): PageOptionsDto {
-  const validatedDto = ValidateSchema<PageOptionsDto>(
-    PageOptionsDtoValidation,
-    dto,
-  );
-  return new PageOptionsDto(validatedDto);
-}
