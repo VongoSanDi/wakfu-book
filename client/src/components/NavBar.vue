@@ -8,7 +8,15 @@
         <RouterLink to="/stuff">Stuff</RouterLink>
         <RouterLink to="/encyclopedia">Encyclopedia</RouterLink>
       </div>
-      <div class="right-0">
+      <div class="flex gap-5 right-0">
+        <div class="">
+          <select v-model="commonStore.locale" @change="commonStore.setLocale(commonStore.locale)" name="locale">
+            <option value="fr">🇫🇷</option>
+            <option value="en">🇬🇧</option>
+            <option value="es">🇪🇸</option>
+            <option value="pt">🇵🇹</option>
+          </select>
+        </div>
         <RouterLink to="/login">Login</RouterLink>
       </div>
     </div>
@@ -32,6 +40,9 @@
 <script setup lang="ts">
 import { mdiMenu } from '@mdi/js'
 import { ref } from 'vue'
+import { useCommonStore } from '@/stores/common'
+
+const commonStore = useCommonStore();
 
 const isOpen = ref(false)
 const toggleMenu = () => {
