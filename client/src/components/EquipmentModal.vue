@@ -12,31 +12,41 @@
 
       <h2 class="text-lg font-bold mb-3 text-center">Détails de l'équipement</h2>
 
-      <!-- Champ de recherche -->
-      <div class="relative w-full mt-2">
-        <input v-model="searchQuery" type="text" placeholder="Rechercher un équipement..."
-          class="w-full p-2 border rounded pr-10" />
-        <!-- Bouton pour effacer le texte -->
-        <button v-if="searchQuery" @click="clearSearch"
-          class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
-          &times;
-        </button>
-      </div>
-
-      <!-- Liste des équipements récupérés depuis l'API -->
-      <div class="flex flex-col">
-        <div v-if="items.length > 0">
-          <div v-for="item in items" :key="item.id" class="p-2 border-b">
-            <p><strong>Nom :</strong> {{ item.title }}</p>
-            <p><strong>Niveau :</strong> {{ item.level }}</p>
-            <p><strong>Description :</strong> {{ item.description }}</p>
+      <!-- Contenu principal en deux colonnes -->
+      <div class="flex flex-1 gap-4 mt-4">
+        <!-- Barre de recherche (gauche) -->
+        <div class="w-1/3 gap-y-4">
+          <div class="relative ">
+            <input v-model="titleQuery" type="text" placeholder="Rechercher un équipement..."
+              class="w-full p-2 border rounded pr-10" />
+            <!-- Bouton pour effacer le texte -->
+            <button v-if="titleQuery" @click="clearTitle"
+              class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+              &times;
+            </button>
+          </div>
+          <div>
+            <input v-model="levelMinQuery" type="number" placeholder="Niv mini" class="w-1/2 p-2
+              border border-round">
+            <input v-model="levelMaxQuery" type="number" placeholder="Niv max" class="w-1/2 p-2
+              border border-round">
           </div>
         </div>
-        <div v-else class="flex flex-grow items-center justify-center">
-          <p class="text-gray-500 text-lg">Aucun équipement trouvé.</p>
+
+        <!-- Liste des équipements (droite) -->
+        <div class="flex-1 overflow-y-auto border rounded p-2 bg-blue">
+          <div v-if="items.length > 0">
+            <div v-for="item in items" :key="item.id" class="p-2 border-b">
+              <p><strong>Nom :</strong> {{ item.title }}</p>
+              <p><strong>Niveau :</strong> {{ item.level }}</p>
+              <p><strong>Description :</strong> {{ item.description }}</p>
+            </div>
+          </div>
+          <div v-else class="flex items-center justify-center h-full">
+            <p class="text-gray-500 text-lg">Aucun équipement trouvé.</p>
+          </div>
         </div>
       </div>
-
     </div>
   </div>
 </template>
@@ -44,62 +54,69 @@
 <script setup lang="ts">
 import { defineProps, defineEmits, ref, watchEffect, watch } from 'vue'
 import type { Item } from '@/types/item.type'
-import { itemService } from '@/services/itemsService';
+import { itemService } from '@/services/itemService'
+import { useCommonStore } from '@/stores/common'
 
-const props = defineProps<{ isOpen: boolean, itemTypeId: number | null }>()
+const props = defineProps<{ isOpen: boolean; itemTypeId: number | null }>()
 const emit = defineEmits(['close'])
+
+const commonStore = useCommonStore()
 
 const items = ref<Item[]>([])
 const loading = ref(false)
-const searchQuery = ref("")
+const titleQuery = ref("")
+const levelMinQuery = ref(1)
+const levelMaxQuery = ref(245)
 let timeoutId: number | null = null
 
 // Fonction pour récupérer les équipements depuis l'API
 const fetchItems = async () => {
-  if (!props.isOpen) return;
+  if (!props.isOpen) return
 
-  loading.value = true;
+  loading.value = true
   try {
-    const results = await itemService.find({
+    const results = await itemService.find(commonStore.locale, {
       itemTypeId: props.itemTypeId ?? undefined,
-      locale: "fr",
       page: 1,
       take: 100,
-      title: searchQuery.value.trim() || undefined, // Envoi du paramètre `title` s'il est défini
+      title: titleQuery.value.trim() || undefined,
+      levelMin: levelMinQuery.value,
+      levelMax: levelMaxQuery.value,
     })
-    items.value = results;
+    console.log('results', results)
+    items.value = results
   } catch (error) {
-    console.error("Erreur lors de la récupération de l'item", error);
+    console.error("Erreur lors de la récupération de l'item", error)
   } finally {
-    loading.value = false;
+    loading.value = false
   }
 }
 
 // Appel initial de l'API lorsque le modal s'ouvre
 watchEffect(() => {
   if (props.isOpen) {
-    fetchItems();
+    fetchItems()
   }
-});
+})
 
 // Déclencher la recherche avec un délai (debounce)
-watch(searchQuery, () => {
-  if (timeoutId) clearTimeout(timeoutId); // Annule le précédent appel en attente
+watch(titleQuery, () => {
+  if (timeoutId) clearTimeout(timeoutId)
   timeoutId = setTimeout(() => {
-    fetchItems();
-  }, 300); // Attend 300ms avant d'exécuter la recherche
-});
+    fetchItems()
+  }, 300)
+})
 
 // Fermeture du modal
 const closeModal = () => {
-  emit('close');
+  emit('close')
 }
 
-// Clear the texte in the search field
-const clearSearch = () => {
-  searchQuery.value = "";
-  fetchItems(); // Recharge les données par défaut
-};
+// Efface la recherche et recharge les données par défaut
+const clearTitle = () => {
+  titleQuery.value = ""
+  fetchItems()
+}
 </script>
 
 <style scoped>

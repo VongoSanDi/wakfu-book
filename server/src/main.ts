@@ -4,7 +4,7 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { GlobalExceptionFilter } from './common/filters/global-exceptions.filter';
+import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { ConfigService } from '@nestjs/config';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 

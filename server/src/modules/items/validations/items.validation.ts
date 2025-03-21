@@ -9,8 +9,10 @@ import { z } from 'zod';
  * - `title` (optional) is a string.
  */
 export const RetrieveItemsFilterValidation = z.object({
-  itemTypeId: z.number().int().positive().optional(),
+  itemTypeId: z.coerce.number().optional(), // Convert this parameter send as string by client since it's the normal way for HTTP request
   title: z.string().optional(),
+  levelMin: z.coerce.number().optional(),
+  levelMax: z.coerce.number().optional(),
 });
 
 /**

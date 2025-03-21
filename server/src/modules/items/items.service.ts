@@ -12,7 +12,7 @@ import { LocaleFilter } from '../../common/validations/locale-validation';
 export class ItemsService {
   constructor(
     @InjectModel(Item.name) private readonly itemModel: Model<ItemDocument>,
-  ) {}
+  ) { }
 
   /**
    * Retrieves a paginated list of items based on the provided filters and pagination options.
@@ -35,7 +35,7 @@ export class ItemsService {
     itemCount: number;
     totalCount: number;
   }> {
-    const { itemTypeId, title } = query;
+    const { itemTypeId, title, levelMin, levelMax } = query;
     const { take, skip, order, orderBy } = pageOptionsDto;
 
     // In MongoDB, order format is ASC = 1, DESC = -1
@@ -45,8 +45,14 @@ export class ItemsService {
     if (itemTypeId !== undefined) {
       filter['definition.item.baseParameters.itemTypeId'] = itemTypeId;
     }
-    if (title) {
+    if (title !== undefined) {
       filter[`title.${locale}`] = { $regex: title, $options: 'i' }; // Recherche insensible à la casse
+    }
+    if (levelMin !== undefined || levelMax !== undefined) {
+      filter['definition.item.level'] = {
+        ...(levelMin !== undefined && { $gte: levelMin }),
+        ...(levelMax !== undefined && { $lte: levelMax }),
+      };
     }
 
     const projection = {

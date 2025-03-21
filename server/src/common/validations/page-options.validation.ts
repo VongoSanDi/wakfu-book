@@ -28,8 +28,8 @@ const orderByEnum = z
  * - `page` (default: `1`, optional) defines the current page number, with a minimum value of `1`.
  */
 export const PageOptionsDtoValidation = z.object({
-  take: z.number().min(1).max(100).default(10),
+  take: z.coerce.number().min(1).max(100).default(10),
   order: z.enum(['ASC', 'DESC']).default('ASC'),
   orderBy: orderByEnum,
-  page: z.number().min(1).default(1).optional(),
+  page: z.coerce.number().min(1).default(1)
 });
