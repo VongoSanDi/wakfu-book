@@ -2,7 +2,6 @@
   <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center backdrop-blur-sm">
     <div
       class="bg-blue-300 p-5 rounded-lg shadow-lg w-[90vw] h-[80vh] overflow-y-auto modal-content relative flex flex-col transition-all duration-300">
-      <!-- Bouton Fermer (croix "X") en haut à droite -->
       <div class="flex justify-end">
         <button @click="closeModal"
           class="text-white text-lg font-bold bg-red-500 w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-600">
@@ -26,6 +25,14 @@
             </button>
           </div>
           <div>
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input type="checkbox" v-model="advancedFilter" class="peer hidden" />
+              <span class="w-5 h-5 border-2 border-white peer-checked:bg-yellow-400 flex items-center justify-center">
+              </span>
+              <span>Recherche avancée</span>
+            </label>
+          </div>
+          <div v-if="advancedFilter">
             <input v-model="levelMinQuery" type="number" placeholder="Niv mini" class="w-1/2 p-2
               border border-round">
             <input v-model="levelMaxQuery" type="number" placeholder="Niv max" class="w-1/2 p-2
@@ -72,6 +79,7 @@ const loading = ref(false)
 const titleQuery = ref("")
 const levelMinQuery = ref(1)
 const levelMaxQuery = ref(245)
+const advancedFilter = ref(false)
 let timeoutId: number | null = null
 
 // Fonction pour récupérer les équipements depuis l'API
@@ -83,7 +91,7 @@ const fetchItems = async () => {
     const results = await itemService.find(commonStore.locale, {
       itemTypeId: props.itemTypeId ?? undefined,
       page: 1,
-      take: 100,
+      take: 40,
       title: titleQuery.value.trim() || undefined,
       levelMin: levelMinQuery.value,
       levelMax: levelMaxQuery.value,
