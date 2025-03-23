@@ -20,6 +20,10 @@ export class ItemMapper {
         itemTypeId: document.definition.item.baseParameters?.itemTypeId,
         itemSetId: document.definition.item.baseParameters.itemSetId,
       },
+      graphicParameters: {
+        gfxId: document.definition.item.graphicParameters.gfxId,
+        femaleGfxId: document.definition.item.graphicParameters.femaleGfxId,
+      },
       title: document.title?.[locale],
       description: document.description?.[locale],
     };

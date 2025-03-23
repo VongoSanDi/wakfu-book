@@ -61,6 +61,8 @@ export class ItemsService {
       'definition.item.level': 1,
       'definition.item.baseParameters.itemTypeId': 1,
       'definition.item.baseParameters.itemSetId': 1,
+      'definition.item.graphicParameters.gfxId': 1,
+      'definition.item.graphicParameters.femaleGfxId': 1,
       [`title.${locale}`]: 1,
       [`description.${locale}`]: 1,
     };
@@ -76,6 +78,7 @@ export class ItemsService {
       totalCountPromise,
       resultsPromise,
     ]);
+
     const resultsMapped = results.map((item) => ItemMapper.toDto(item, locale));
     return {
       data: resultsMapped,

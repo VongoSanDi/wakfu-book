@@ -1,7 +1,7 @@
 <template>
   <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center backdrop-blur-sm">
     <div
-      class="bg-blue-300 p-5 rounded-lg shadow-lg w-[60vw] h-[80vh] overflow-y-auto modal-content relative flex flex-col transition-all duration-300">
+      class="bg-blue-300 p-5 rounded-lg shadow-lg w-[90vw] h-[80vh] overflow-y-auto modal-content relative flex flex-col transition-all duration-300">
       <!-- Bouton Fermer (croix "X") en haut à droite -->
       <div class="flex justify-end">
         <button @click="closeModal"
@@ -15,7 +15,7 @@
       <!-- Contenu principal en deux colonnes -->
       <div class="flex flex-1 gap-4 mt-4">
         <!-- Barre de recherche (gauche) -->
-        <div class="w-1/3 gap-y-4">
+        <div class="w-1/6 gap-y-4">
           <div class="relative ">
             <input v-model="titleQuery" type="text" placeholder="Rechercher un équipement..."
               class="w-full p-2 border rounded pr-10" />
@@ -35,11 +35,16 @@
 
         <!-- Liste des équipements (droite) -->
         <div class="flex-1 overflow-y-auto border rounded p-2 bg-blue">
-          <div v-if="items.length > 0">
-            <div v-for="item in items" :key="item.id" class="p-2 border-b">
-              <p><strong>Nom :</strong> {{ item.title }}</p>
-              <p><strong>Niveau :</strong> {{ item.level }}</p>
-              <p><strong>Description :</strong> {{ item.description }}</p>
+          <div v-if="loading">
+            Chargement
+          </div>
+          <div v-else-if="items.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            <div v-for="item in items" :key="item.id" class="p-2 border-b flex" @click="selectItem(item)">
+              <img :src="item.imageUrl" :alt="item.title" width={64} height={64} loading="lazy" />
+              <div>
+                <p><strong>Nom :</strong> {{ item.title }}</p>
+                <p><strong>Niveau :</strong> {{ item.level }}</p>
+              </div>
             </div>
           </div>
           <div v-else class="flex items-center justify-center h-full">
@@ -54,11 +59,11 @@
 <script setup lang="ts">
 import { defineProps, defineEmits, ref, watchEffect, watch } from 'vue'
 import type { Item } from '@/types/item.type'
-import { itemService } from '@/services/itemService'
+import { itemService } from '@/services/items/itemService'
 import { useCommonStore } from '@/stores/common'
 
 const props = defineProps<{ isOpen: boolean; itemTypeId: number | null }>()
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'select'])
 
 const commonStore = useCommonStore()
 
@@ -83,13 +88,24 @@ const fetchItems = async () => {
       levelMin: levelMinQuery.value,
       levelMax: levelMaxQuery.value,
     })
-    console.log('results', results)
     items.value = results
   } catch (error) {
     console.error("Erreur lors de la récupération de l'item", error)
   } finally {
     loading.value = false
   }
+}
+
+/**
+ *
+ *
+ * @param {Item} item Item to emit
+ *
+ */
+const selectItem = (item: Item) => {
+  console.log('item', item)
+  emit('select', item)
+  emit('close')
 }
 
 // Appel initial de l'API lorsque le modal s'ouvre

@@ -1,11 +1,12 @@
 import type { Item } from "@/types/item.type";
-import type { RetrieveItemDto } from "./items/dto/retrieve-item.dto";
-import { ApiService } from "./apiService";
+import { ApiService } from "../apiService";
+import type { RetrieveItemDto } from "./dto/retrieve-item.dto";
 import type { PageMeta } from "@/types/api.type";
 
 export class ItemService extends ApiService<Item> {
   protected baseUrl = import.meta.env.VITE_SERVER_URL;
   protected endpoint = '/items';
+  protected baseUrlCdn = "https://cdn.jsdelivr.net/gh/VongoSanDi/wakfu-assets@main/items"
 
   /**
   * Retrive paginated list of items
@@ -30,11 +31,13 @@ export class ItemService extends ApiService<Item> {
     const url = `${this.baseUrl}${this.endpoint}/${locale}?${queryParams.toString()}`;
 
     const results = await this.fetchApi<{ data: Item[], meta: PageMeta }>(url);
+    const items = results.data
+    const itemsWithImages = items.map((item) => ({
+      ...item,
+      imageUrl: `${this.baseUrlCdn}/${item.graphicParameters.gfxId}.webp`,
+    }))
 
-    console.log(results);
-
-
-    return results.data;
+    return itemsWithImages;
   }
 }
 

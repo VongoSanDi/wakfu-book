@@ -8,6 +8,14 @@ class BaseParametersDto {
   itemSetId: number;
 }
 
+class GraphicParametersDto {
+  @ApiProperty()
+  gfxId: number;
+
+  @ApiProperty()
+  femaleGfxId: number;
+}
+
 export class RetrieveItemDto {
   @ApiProperty()
   id: number;
@@ -17,6 +25,9 @@ export class RetrieveItemDto {
 
   @ApiProperty({ type: BaseParametersDto })
   baseParameters: BaseParametersDto;
+
+  @ApiProperty({ type: GraphicParametersDto })
+  graphicParameters: GraphicParametersDto;
 
   @ApiProperty()
   title: string;
