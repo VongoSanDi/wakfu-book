@@ -2,6 +2,7 @@
   <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center backdrop-blur-sm">
     <div
       class="bg-blue-300 p-5 rounded-lg shadow-lg w-[90vw] h-[80vh] overflow-y-auto modal-content relative flex flex-col transition-all duration-300">
+      <!-- Bouton Fermer (croix "X") en haut à droite -->
       <div class="flex justify-end">
         <button @click="closeModal"
           class="text-white text-lg font-bold bg-red-500 w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-600">
@@ -47,7 +48,14 @@
           </div>
           <div v-else-if="items.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             <div v-for="item in items" :key="item.id" class="p-2 border-b flex" @click="selectItem(item)">
-              <img :src="item.imageUrl" :alt="item.title" width={64} height={64} loading="lazy" />
+              <div>
+                <button @click="addToForge">
+                  <svg class="w-8 h-8 text-white" viewBox="0 0 24 24">
+                    <path :d="mdiHammer" fill="currentColor" />
+                  </svg>
+                </button>
+                <img :src="item.imageUrl" :alt="item.title" width={64} height={64} loading="lazy" />
+              </div>
               <div>
                 <p><strong>Nom :</strong> {{ item.title }}</p>
                 <p><strong>Niveau :</strong> {{ item.level }}</p>
@@ -68,6 +76,7 @@ import { defineProps, defineEmits, ref, watchEffect, watch } from 'vue'
 import type { Item } from '@/types/item.type'
 import { itemService } from '@/services/items/itemService'
 import { useCommonStore } from '@/stores/common'
+import { mdiHammer } from '@mdi/js'
 
 const props = defineProps<{ isOpen: boolean; itemTypeId: number | null }>()
 const emit = defineEmits(['close', 'select'])
@@ -91,7 +100,7 @@ const fetchItems = async () => {
     const results = await itemService.find(commonStore.locale, {
       itemTypeId: props.itemTypeId ?? undefined,
       page: 1,
-      take: 40,
+      take: 50,
       title: titleQuery.value.trim() || undefined,
       levelMin: levelMinQuery.value,
       levelMax: levelMaxQuery.value,
@@ -114,6 +123,10 @@ const selectItem = (item: Item) => {
   console.log('item', item)
   emit('select', item)
   emit('close')
+}
+
+const addToForge = () => {
+  return null
 }
 
 // Appel initial de l'API lorsque le modal s'ouvre
