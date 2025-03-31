@@ -1,8 +1,10 @@
 # Import JSON file into mongodb using mongosh
+```bash
 mongosh "mongodb+srv://<username>:<password>@<cluser_url>/<db_name>?retryWrites=true&w=majority"
 use <db_name>
 const data = EJSON.parse(fs.readFileSync("path/to/file"))
 db.<collection>.insertMany(data)
+```
 
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
