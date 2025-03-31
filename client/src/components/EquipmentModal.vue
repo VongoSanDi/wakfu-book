@@ -72,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, ref, watchEffect, watch } from 'vue'
+import { defineProps, defineEmits, ref, watch, onMounted } from 'vue'
 import type { Item } from '@/types/item.type'
 import { itemService } from '@/services/items/itemService'
 import { useCommonStore } from '@/stores/common'
@@ -130,7 +130,7 @@ const addToForge = () => {
 }
 
 // Appel initial de l'API lorsque le modal s'ouvre
-watchEffect(() => {
+onMounted(() => {
   if (props.isOpen) {
     fetchItems()
   }

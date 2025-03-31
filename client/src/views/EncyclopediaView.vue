@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-col h-screen w-screen">
+  <div class="flex h-screen w-screen">
     <!-- Barre de recherche -->
-    <div class="p-4">
+    <div class="p-4 w-1/7">
       <div class="relative">
         <input v-model="titleQuery" type="text" placeholder="Rechercher un équipement..."
           class="w-full p-2 border rounded pr-10" />
@@ -20,8 +20,14 @@
               border border-round">
           <input v-model="levelMaxQuery" type="number" placeholder="Niv max" class="w-1/2 p-2
               border border-round">
+          <select v-model="itemTypeQuery" @change="fetchItemsType" name="itemsType" class="w-full ">
+            <option disabled value="">--Sélectionner un type d'objet--</option>
+            <option v-for="type in itemTypes" value="type.definition.id" :key="type.definition.id">{{
+              type.title
+              }}
+            </option>
+          </select>
         </div>
-
       </div>
     </div>
 
@@ -40,7 +46,7 @@
       </div>
 
       <div v-else class="flex items-center justify-center h-full">
-        <p class="text-gray-500 text-lg">Aucun équipement trouvé.</p>
+        <p class="text-gray-500 text-lg">Aucun objet trouvé.</p>
       </div>
     </div>
   </div>
@@ -51,17 +57,24 @@ import { itemService } from '@/services/items/itemService';
 import { useCommonStore } from '@/stores/common';
 import { mdiHammer } from "@mdi/js"
 import type { Item } from '@/types/item.type';
-import { ref, watch, watchEffect } from 'vue';
+import { onMounted, ref, watch } from 'vue';
+import type { ItemTypes } from '@/types/itemTypes.type';
 
 const advancedFilter = ref(false)
 const titleQuery = ref("")
 const levelMinQuery = ref(1)
 const levelMaxQuery = ref(245)
+const itemTypeQuery = ref("")
 const loading = ref(false)
 const commonStore = useCommonStore()
 const items = ref<Item[]>([])
+const itemTypes = ref<ItemTypes[]>([])
 let timeoutId: number | null = null
 
+/**
+ *  Fetch the items
+ *
+ */
 const fetchItems = async () => {
   loading.value = true
   try {
@@ -74,10 +87,14 @@ const fetchItems = async () => {
     })
     items.value = results
   } catch (error) {
-    console.error("Erreur lors de la récupération de l'item", error)
+    console.error("Erreur lors de la récupération de l'objet", error)
   } finally {
     loading.value = false
   }
+}
+
+const fetchItemsType = async () => {
+  itemTypes.value = []
 }
 
 const addToForge = () => {
@@ -85,7 +102,7 @@ const addToForge = () => {
 }
 
 // Appel initial de l'API lorsqu'on arrive sur la page
-watchEffect(() => {
+onMounted(() => {
   fetchItems()
 })
 
