@@ -6,7 +6,7 @@ import { mockActionsData } from './mock-actions-data';
 import { getModelToken } from '@nestjs/mongoose';
 import { Action, ActionSchema } from '../schemas/actions.schema';
 import { RetrieveActionFilter } from '../validations/actions.validation';
-import { PageOptionsDto } from 'src/common/dto/page-options.dto';
+import { PageOptionsDto } from '../../../common/dto/page-options.dto';
 
 describe('ActionsService', () => {
   let service: ActionsService;
