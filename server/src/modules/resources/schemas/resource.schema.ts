@@ -35,9 +35,10 @@ class Definition {
   usableByHeroes: boolean;
 
   @Prop()
-  ideaRain: number;
+  idealRain: number;
 }
 
+@Schema()
 export class Resource {
   @Prop({ type: Definition })
   definition: Definition;

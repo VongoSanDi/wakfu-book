@@ -5,7 +5,6 @@ import { z } from 'zod';
  *
  * This schema ensures that:
  * - `id` is a positive integer.
- * - `locale` is a required enum value among `'fr'`, `'en'`, `'es'`, or `'pt'`.
  */
 export const RetrieveActionsFilterValidation = z.object({
   id: z.number().int().positive().optional(),
