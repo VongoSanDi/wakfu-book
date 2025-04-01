@@ -32,7 +32,7 @@ class Definition {
   usableByHeroes: boolean;
 
   @ApiProperty()
-  ideaRain: number;
+  idealRain: number;
 }
 
 export class RetrieveResourceDto {
