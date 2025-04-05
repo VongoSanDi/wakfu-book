@@ -17,7 +17,7 @@ export class ResourcesController {
   @Get(':locale')
   @ApiOperation({ summary: 'Retrieve all actions' })
   @ApiParam({ name: 'locale', required: true, type: String, example: 'fr' })
-  @ApiQuery({ name: 'id', required: false, type: Number, example: '1' })
+  @ApiQuery({ name: 'resourceType', required: false, type: Number, example: '1' })
   @ApiPaginationQuery()
   @ApiResponse({
     status: 200,
@@ -43,6 +43,7 @@ export class ResourcesController {
 
     const pageOptionsInstance = new PageOptionsDto(validatedPageOptions);
 
+
     const { data, itemCount, totalCount } = await this.resourcesService.find(
       validatedLocale,
       validatedQuery,
@@ -52,7 +53,7 @@ export class ResourcesController {
     return { data, itemCount, totalCount, pageOptionsDto: pageOptionsInstance };
   }
 
-  @Get(':id')
+  @Get(':locale/:id')
   findOne(@Param('id') id: string) {
     return this.resourcesService.findOne(+id);
   }
