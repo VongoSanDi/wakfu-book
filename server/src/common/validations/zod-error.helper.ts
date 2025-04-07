@@ -19,15 +19,20 @@ export function handleZodValidation<T>(
   options: ValidationOptions,
 ): T {
   if (!result.success) {
-    const formattedErrors = result.error.format();
+    const zodError = result.error;
+    const formattedErrors = zodError.format();
+
+    const flatErrors = zodError.errors.map((e) => e.message).filter(Boolean)
+    const finalMessage = flatErrors.length > 0 ? flatErrors : [options.message]
+
     if (options.logError) {
       logger.warn(
         `Validation error: ${options.message}`,
-        result.error.format(),
+        JSON.stringify(formattedErrors, null, 2)
       );
     }
     throw new BadRequestException({
-      message: options.message,
+      message: finalMessage,
       errors: formattedErrors
     });
   }
