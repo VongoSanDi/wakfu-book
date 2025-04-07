@@ -24,6 +24,17 @@ export class ItemMapper {
         gfxId: document.definition.item.graphicParameters.gfxId,
         femaleGfxId: document.definition.item.graphicParameters.femaleGfxId,
       },
+      equipEffects: (document.definition.equipEffects || []).map((e) => ({
+        effect: {
+          definition: {
+            id: e.effect.definition.id,
+            actionId: e.effect.definition.actionId,
+            areaShape: e.effect.definition.areaShape,
+            areaSize: e.effect.definition.areaSize,
+            params: e.effect.definition.params,
+          }
+        }
+      })),
       title: document.title?.[locale],
       description: document.description?.[locale],
     };

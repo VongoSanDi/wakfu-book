@@ -16,6 +16,34 @@ class GraphicParametersDto {
   femaleGfxId: number;
 }
 
+// Definition.equipEffects.effect
+class EffectDefinition {
+  @ApiProperty()
+  id: number;
+
+  @ApiProperty()
+  actionId: number;
+
+  @ApiProperty()
+  areaShape: number;
+
+  @ApiProperty()
+  areaSize: number[];
+
+  @ApiProperty()
+  params: number[];
+}
+
+class Effect {
+  @ApiProperty({ type: EffectDefinition })
+  definition: EffectDefinition
+}
+
+class EquipEffects {
+  @ApiProperty({ type: Effect })
+  effect: Effect
+}
+
 export class RetrieveItemDto {
   @ApiProperty()
   id: number;
@@ -28,6 +56,9 @@ export class RetrieveItemDto {
 
   @ApiProperty({ type: GraphicParametersDto })
   graphicParameters: GraphicParametersDto;
+
+  @ApiProperty({ type: EquipEffects })
+  equipEffects: EquipEffects[];
 
   @ApiProperty()
   title: string;
