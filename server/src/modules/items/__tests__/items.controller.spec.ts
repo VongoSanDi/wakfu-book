@@ -286,4 +286,39 @@ describe('ItemsController', () => {
       BadRequestException,
     );
   });
+
+  it('should return an error if levelMin is < 1', async () => {
+    const query: RetrieveItemFilter = {
+      itemTypeId: 120,
+      levelMin: 0
+    };
+    const pageOptionsDto = new PageOptionsDto({
+      take: 10,
+      page: 1,
+      order: 'ASC',
+      orderBy: 'definition.item.id',
+    });
+
+    await expect(controller.find('en', query, pageOptionsDto)).rejects.toThrow(
+      BadRequestException,
+    );
+  });
+
+  it('should return an error if levelMin > levelMax', async () => {
+    const query: RetrieveItemFilter = {
+      itemTypeId: 120,
+      levelMin: 30,
+      levelMax: 20
+    };
+    const pageOptionsDto = new PageOptionsDto({
+      take: 10,
+      page: 1,
+      order: 'ASC',
+      orderBy: 'definition.item.id',
+    });
+
+    await expect(controller.find('en', query, pageOptionsDto)).rejects.toThrow(
+      BadRequestException,
+    );
+  })
 });
