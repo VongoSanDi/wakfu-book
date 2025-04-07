@@ -11,9 +11,18 @@ import { z } from 'zod';
 export const RetrieveItemsFilterValidation = z.object({
   itemTypeId: z.coerce.number().optional(), // Convert this parameter send as string by client since it's the normal way for HTTP request
   title: z.string().optional(),
-  levelMin: z.coerce.number().optional(),
+  levelMin: z.coerce.number().min(1).optional(),
   levelMax: z.coerce.number().optional(),
-});
+}).refine(
+  (data) =>
+    data.levelMin === undefined ||
+    data.levelMax === undefined ||
+    data.levelMin < data.levelMax,
+  {
+    message: 'levelMin must be less than levelMax',
+    path: ['levelMin'],
+  }
+);;
 
 /**
  * Type representing the validated item retrieval filter.
