@@ -80,9 +80,6 @@ export class ItemsService {
       resultsPromise,
     ]);
 
-    console.log('results', results);
-
-
     const resultsMapped = results.map((item) => ItemMapper.toDto(item, locale));
     return {
       data: resultsMapped,

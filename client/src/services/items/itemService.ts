@@ -1,9 +1,9 @@
-import type { Item } from "@/types/item.type";
+import type { PaginatedItem } from "@/types/item.type";
 import { ApiService } from "../apiService";
 import type { RetrieveItemDto } from "./dto/retrieve-item.dto";
 import type { PageMeta } from "@/types/api.type";
 
-export class ItemService extends ApiService<Item> {
+export class ItemService extends ApiService<PaginatedItem> {
   protected baseUrl = import.meta.env.VITE_SERVER_URL;
   protected endpoint = '/items';
   protected baseUrlCdn = "https://cdn.jsdelivr.net/gh/VongoSanDi/wakfu-assets@main/items"
@@ -16,7 +16,7 @@ export class ItemService extends ApiService<Item> {
   * @returns {Promise<{ Item[]}>}
   *
   */
-  async find(locale: string, dto: RetrieveItemDto): Promise<Item[]> {
+  async find(locale: string, dto: RetrieveItemDto): Promise<PaginatedItem> {
     const queryParams = new URLSearchParams({
       ...(dto.itemTypeId !== undefined && { itemTypeId: dto.itemTypeId.toString() }),
       ...(dto.title && { title: dto.title }),
@@ -30,14 +30,14 @@ export class ItemService extends ApiService<Item> {
 
     const url = `${this.baseUrl}${this.endpoint}/${locale}?${queryParams.toString()}`;
 
-    const results = await this.fetchApi<{ data: Item[], meta: PageMeta }>(url);
-    const items = results.data
-    const itemsWithImages = items.map((item) => ({
+    const results = await this.fetchApi<{ data: PaginatedItem[], meta: PageMeta }>(url);
+
+    const itemsWithImages = results.data.map((item: any) => ({
       ...item,
       imageUrl: `${this.baseUrlCdn}/${item.graphicParameters.gfxId}.webp`,
     }))
 
-    return itemsWithImages;
+    return { ...results, data: itemsWithImages };
   }
 }
 

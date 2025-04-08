@@ -22,12 +22,15 @@ export interface ApiResponse<T> {
   }
 }
 
+export const orderValues = ['ASC', 'DESC'] as const;
+export type Order = typeof orderValues[number]; // "ASC" | "DESC"
+
 /**
  * Pagination params
  */
 export interface PaginationParams {
   take?: number;
   page?: number;
-  order?: 'ASC | DESC';
+  order?: Order;
   orderBy?: string;
 }
