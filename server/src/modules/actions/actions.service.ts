@@ -13,7 +13,7 @@ export class ActionsService {
   constructor(
     @InjectModel(Action.name)
     private readonly actionModel: Model<ActionDocument>,
-  ) {}
+  ) { }
 
   /**
    * Retrieves a paginated list of actions based on the provided filters and pagination options.
@@ -37,13 +37,17 @@ export class ActionsService {
     itemCount: number;
     totalCount: number;
   }> {
-    const { id } = query;
+    const { id, ids } = query;
     const { take, skip, order, orderBy } = pageOptionsDto;
     // In MongoDB, order format is ASC = 1, DESC = -1
     const sortOrder: SortOrder = order.toUpperCase() === 'DESC' ? -1 : 1;
     const sortQuery = orderBy ? { [orderBy]: sortOrder } : {};
+
+    // On ne filtre que par ids ou id, pas les 2 en même temps
     const filter: Record<string, any> = {};
-    if (id !== undefined) {
+    if (ids !== undefined && ids.length > 0) {
+      filter['definition.id'] = { $in: ids };
+    } else if (id !== undefined) {
       filter['definition.id'] = id;
     }
 
@@ -55,6 +59,7 @@ export class ActionsService {
     };
 
     const totalCountPromise = this.actionModel.countDocuments(filter);
+
     const resultsPromise = this.actionModel
       .find(filter, projection)
       .skip(skip)

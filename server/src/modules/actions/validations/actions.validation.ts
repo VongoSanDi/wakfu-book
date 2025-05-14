@@ -8,6 +8,7 @@ import { z } from 'zod';
  */
 export const RetrieveActionsFilterValidation = z.object({
   id: z.number().int().positive().optional(),
+  ids: z.array(z.number().positive()).optional()
 });
 
 /**

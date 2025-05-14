@@ -248,4 +248,27 @@ describe('ActionsService', () => {
     expect(itemCount).toEqual(0);
     expect(totalCount).toBeGreaterThan(0);
   });
+
+  it('should return items when passing array of ids in the filter', async () => {
+    const locale = 'fr'
+    const pageOptionsDto = new PageOptionsDto({
+      take: 4,
+      page: 1,
+      order: 'ASC',
+      orderBy: 'id'
+    })
+
+    const query: RetrieveActionFilter = { ids: [1, 20, 21] };
+    const { data, itemCount, totalCount } = await service.find(
+      locale,
+      query,
+      pageOptionsDto,
+    );
+
+    expect(data).toHaveLength(3);
+    expect(itemCount).toEqual(3)
+    expect(totalCount).toEqual(3)
+    expect(data[0].id).toEqual(1);
+    expect(data[2].id).toEqual(21);
+  })
 });

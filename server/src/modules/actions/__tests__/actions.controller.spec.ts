@@ -176,4 +176,20 @@ describe('ActionsController', () => {
       controller.find(locale, query, pageOptionsDto),
     ).rejects.toThrow(BadRequestException);
   });
+
+  it('should issue error when passing array of strings', async () => {
+    const locale = 'fr'
+    const pageOptionsDto = new PageOptionsDto({
+      take: 4,
+      page: 1,
+      order: 'ASC',
+      orderBy: 'id'
+    })
+
+    const query: RetrieveActionFilter = { ids: ['aaa', 'b', 'dsf'] } as unknown as RetrieveActionFilter;
+
+    await expect(
+      controller.find(locale, query, pageOptionsDto),
+    ).rejects.toThrow(BadRequestException);
+  });
 });
