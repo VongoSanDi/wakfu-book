@@ -10,14 +10,17 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  const config = new DocumentBuilder()
-    .setTitle('Wakfu API')
-    .setDescription('Api for wakfu')
-    .setVersion('1.0')
-    .addTag('wakfu')
-    .build();
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    new FastifyAdapter({ logger: true }),
+  );
 
+  const config = new DocumentBuilder()
+    .setTitle('Cats example')
+    .setDescription('The cats API description')
+    .setVersion('1.0')
+    .addTag('cats')
+    .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
 
