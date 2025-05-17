@@ -60,7 +60,7 @@ export class ResourcesService {
 
     const totalCountPromise = this.resourceModel.countDocuments(filter);
     const resultsPromise = this.resourceModel
-      .find(filter, projection)
+      .find(filter, projection as any)
       .skip(skip)
       .limit(take)
       .sort(sortQuery)
