@@ -70,7 +70,7 @@ export class ItemsService {
 
     const totalCountPromise = this.itemModel.countDocuments(filter);
     const resultsPromise = this.itemModel
-      .find(filter, projection)
+      .find(filter, projection as any)
       .skip(skip)
       .limit(take)
       .sort(sortQuery)

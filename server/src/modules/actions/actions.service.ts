@@ -61,7 +61,7 @@ export class ActionsService {
     const totalCountPromise = this.actionModel.countDocuments(filter);
 
     const resultsPromise = this.actionModel
-      .find(filter, projection)
+      .find(filter, projection as any )
       .skip(skip)
       .limit(take)
       .sort(sortQuery)
